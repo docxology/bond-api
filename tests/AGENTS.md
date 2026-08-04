@@ -3,8 +3,8 @@
 ## Overview
 
 Tests for the BOND-API protocol package. Every test uses real data, real
-files, real film packages, and real computation — no `unittest.mock`,
-`MagicMock`, `@patch`, or `create_autospec`.
+files, real film packages, and real computation — no mocking framework of any
+kind (no mock objects, no patching utilities) appears anywhere in tests.
 
 ## Directory Structure
 
