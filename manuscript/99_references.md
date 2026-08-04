@@ -1,10 +1,13 @@
-# References {#sec:references}
+# References
 
-Bibliography lives in [`manuscript/references.bib`](references.bib) and is read by Pandoc during PDF render. The build pipeline invokes Pandoc with `--natbib`, so every `[@key]` citation in the manuscript is rewritten to the appropriate `\cite{}`/`\citep{}`/`\citet{}` LaTeX command and resolved against the bib file.
+## Standards and specification documents
 
-To validate that `references.bib` is syntactically clean and contains the required fields per entry type:
+- Van Rossum, G., Levkivskyi, I. (2018). *PEP 544 — Protocols: Structural
+  subtyping (static duck typing)*. Python Enhancement Proposal.
+- Debonne, E., Barnert, P., La, D. (2016). *PEP 557 — Data Classes*.
+  Python Enhancement Proposal.
 
-```bash
-uv run python -m infrastructure.reference.citation.cli validate \
-    projects/working/bond/bond-api/manuscript/references.bib --strict
-```
+## Repositories
+
+- Active Inference Institute. *BOND suite — bond-api: the frozen mission
+  protocol contract*. <https://github.com/docxology/bond-api>

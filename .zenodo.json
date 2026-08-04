@@ -6,25 +6,17 @@
       "orcid": "0000-0001-6232-9096"
     }
   ],
-  "description": "Source code for Convergence Analysis of Gradient Descent Optimization (2026).",
+  "description": "BOND-API: the frozen mission protocol contract for the BOND film suite (Layer 1) — frozen protocol dataclasses, MissionProvider contract, slug-based film discovery, registries, and deterministic JSON serialization.",
   "keywords": [
-    "optimization algorithms",
-    "gradient descent",
-    "convergence analysis",
-    "numerical methods",
-    "mathematical programming",
-    "reproducible research",
-    "infrastructure automation"
+    "mission protocol",
+    "frozen contract",
+    "film agents",
+    "deterministic serialization",
+    "plugin discovery",
+    "reproducible research"
   ],
   "license": "MIT",
-  "related_identifiers": [
-    {
-      "identifier": "10.5281/zenodo.20417136",
-      "relation": "isVersionOf",
-      "scheme": "doi"
-    }
-  ],
-  "title": "Convergence Analysis of Gradient Descent Optimization",
+  "title": "BOND-API: The Frozen Mission Protocol Contract for the BOND Film Suite",
   "upload_type": "software",
-  "version": "2.5.2"
+  "version": "0.1.0"
 }

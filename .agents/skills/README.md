@@ -1,12 +1,11 @@
-# .agents/skills — README.md
+# .agents/skills
 
-Project-local skill catalog for `bond-api`. One folder per
-skill; each ships `SKILL.md` (frontmatter + body), `AGENTS.md` (folder
-contract), and `README.md` (pointer).
+Project-local skill catalog. One folder per skill; each ships
+`AGENTS.md`, `README.md`, `SKILL.md`.
 
 | Skill | Purpose |
 | --- | --- |
-| [`bond-api/`](bond-api/README.md) | Drive this exemplar end-to-end (commands, pitfalls, contract traceability). |
+| [`bond-api/`](bond-api/README.md) | Drive the BOND-API protocol package (commands, pitfalls, contract traceability). |
 
-Load [`bond-api/SKILL.md`](bond-api/SKILL.md)
-when working inside the exemplar or forking it as a scaffold.
+Load the [`bond-api`](bond-api/SKILL.md) skill when working inside the
+package: when-to-use guidance, quick reference commands, and pitfalls.

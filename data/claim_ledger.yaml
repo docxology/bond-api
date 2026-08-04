@@ -1,57 +1,36 @@
 claims:
-  - claim_id: figure-export-dpi
+  - claim_id: protocol-dataclass-count
     kind: number
-    value: 300
-    source: projects/working/bond/bond-api/src/viz_config.py plotting defaults (dpi)
+    value: 11
+    source: projects/working/bond/bond-api/src/bond_api/protocol.py frozen dataclasses (protocol_surface)
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/convergence_plot.png
-  - claim_id: step-size-sensitivity-cap
+    artifact_path: src/bond_api/protocol.py
+  - claim_id: provider-stage-count
     kind: number
-    value: 500
-    source: projects/working/bond/bond-api/src/sweeps.py sensitivity_sweep max_iter cap
-    source_tier: generated_metric
-    freshness: active
-    artifact_path: output/figures/step_size_sensitivity.png
-  - claim_id: stability-log-lower
-    kind: number
-    value: -6
-    source: projects/working/bond/bond-api/src/figures/scientific_stability.py stability visualization caption
+    value: 5
+    source: projects/working/bond/bond-api/src/bond_api/protocol.py MISSION_FLOW
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: solution-relative-error-exponent
+    artifact_path: src/bond_api/protocol.py
+  - claim_id: coverage-floor
     kind: number
-    value: -4
-    source: projects/working/bond/bond-api/manuscript/03_results.md stated precision threshold
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: manuscript/03_results.md
-  - claim_id: stability-log-upper
-    kind: number
-    value: -9
-    source: projects/working/bond/bond-api/src/figures/scientific_stability.py stability visualization caption
+    value: 90
+    source: projects/working/bond/bond-api/pyproject.toml [tool.coverage.report] fail_under
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: benchmark-tolerance-exponent
-    kind: number
-    value: -10
-    source: projects/working/bond/bond-api/scripts/optimization_analysis.py dimensional benchmark tolerance
+    artifact_path: pyproject.toml
+  - claim_id: serialization-type-tag
+    kind: string
+    value: "__bond_type__"
+    source: projects/working/bond/bond-api/src/bond_api/serialization.py wire-format tag
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-min-iterations
-    kind: number
-    value: 219
-    source: projects/working/bond/bond-api/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
+    artifact_path: src/bond_api/serialization.py
+  - claim_id: reference-film-slug
+    kind: string
+    value: "sable"
+    source: projects/working/bond/bond-api/films/sable/mission.py MissionProvider.film
+    source_tier: project_source
     freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-max-iterations
-    kind: number
-    value: 238
-    source: projects/working/bond/bond-api/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
+    artifact_path: films/sable/mission.py

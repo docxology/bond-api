@@ -1,49 +1,39 @@
-domain: code_research
-display_name: Code Research Exemplar
+domain: protocol_engineering
+display_name: BOND-API — Frozen Mission Protocol Contract
 required_packages:
-  - numpy
-  - matplotlib
+  - pyyaml
   - pytest
 preferred_outputs:
   - pdf
   - html
-  - docx
-  - epub
 validation_gates:
-  - experiment_method_design
-  - artifact_manifest
-  - evidence_grounding
-  - render_validation
-  - publication_readiness
-figure_types:
-  - convergence_plot
-  - performance_benchmark
-  - sensitivity_analysis
+  - coverage_floor
+  - zero_mock
+  - ruff_mypy
+  - manuscript_token_hydration
+  - discovery_conformance
+figure_types: []
 citation_policy: official_or_scholarly
-source_policy: "Prefer primary project outputs, official package documentation, and scholarly optimization references."
+source_policy: "Prefer primary project outputs: src/bond_api/, films/, tests/, and manuscript/config.yaml."
 review_gates:
-  - experiment_method_design
-  - render_validation
-  - publication_readiness
+  - coverage_floor
+  - zero_mock
+  - manuscript_token_hydration
 artifact_expectations:
   - output/data/manuscript_variables.json
-  - output/data/optimization_results.csv
-  - output/figures/convergence_plot.png
-  - output/reports/validation_report.json
-  - output/pdf/template_code_project_combined.pdf
+  - output/manuscript/00_abstract.md
+  - output/manuscript/03_results.md
 benchmark_rubric:
-  name: code-research-readiness
+  name: bond-api-protocol-readiness
   dimensions:
-    - name: output_validity
-      weight: 1.0
-    - name: reproducibility_bundle
-      weight: 1.0
-    - name: artifact_manifest
-      weight: 1.0
-    - name: evidence_grounding
+    - name: protocol_completeness
       weight: 2.0
-    - name: render_success
+    - name: round_trip_fidelity
+      weight: 2.0
+    - name: discovery_coverage
       weight: 1.0
-    - name: publication_readiness
+    - name: zero_mock
       weight: 1.0
-llm_prompt_guidance: "Use generated optimization artifacts and manuscript variables as the evidence source; do not invent numeric results."
+    - name: determinism
+      weight: 1.0
+llm_prompt_guidance: "Use the protocol surface (protocol_surface), test evidence, and manuscript variables as the evidence source; do not invent numeric results."

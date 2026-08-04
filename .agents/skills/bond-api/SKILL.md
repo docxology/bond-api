@@ -1,53 +1,57 @@
 ---
 name: bond-api
-description: Code-centric optimization research exemplar — gradient descent, convergence analysis, automated figures, dashboard, and publication-quality PDF.
+description: BOND-API — the frozen mission protocol contract for the BOND film suite (Layer 1, codename THE PROTOCOL).
 version: 0.1.0
 author: docxology
 license: MIT
-tags: [exemplar, code, optimization, thin-orchestrator]
+tags: [bond, protocol, frozen-contract, discovery, serialization]
 ---
 
 # bond-api
 
-Project-scoped skill for the in-repo exemplar at
+Project-scoped skill for the BOND-API protocol package at
 `projects/working/bond/bond-api/`. Load this when working inside the project.
 
 ## When to Use
 
-- Working inside the `bond-api` exemplar — running scripts, editing source,
-  or regenerating outputs.
-- Forking this exemplar as the starting scaffold for a new research project.
-- Validating that the exemplar's contracts (thin-orchestrator, layer boundaries,
-  no-mocks testing) still hold after changes.
+- Working inside `bond-api` — editing source, running scripts, or touching
+  the protocol surface.
+- Implementing a film package against the contract (`<slug>/mission.py`).
+- Verifying that the frozen contract, thin-orchestrator boundary, and
+  zero-mock testing discipline still hold after changes.
 
 ## Quick Reference
 
 ```bash
-# From the repository root
-uv run pytest projects/working/bond/bond-api/tests --cov=projects/working/bond/bond-api/src --cov-fail-under=90
-uv run python scripts/pipeline/stage_02_analysis.py --project templates/bond-api
-uv run python scripts/pipeline/stage_03_render.py --project templates/bond-api
-uv run python scripts/pipeline/stage_04_validate.py --project templates/bond-api
-uv run python scripts/pipeline/stage_05_copy.py --project templates/bond-api
+# From the package directory
+uv sync --extra dev
+uv run pytest tests/ --cov=src --cov-fail-under=90
+uv run ruff check src/ scripts/ films/
+uv run mypy src/ scripts/ films/
+uv run python scripts/00_preflight.py
+uv run python scripts/demo_mission.py
+uv run python scripts/z_generate_manuscript_variables.py
 ```
 
 ## Pitfalls
 
-- **Keep scripts thin.** Business logic belongs in `src/` or shared
-  `infrastructure/`, not in `scripts/`.
-- **No mocks.** All tests must use real data, real files, and real
-  computation.
-- **Outputs are disposable.** Never hand-edit `output/` — regenerate from
-  source and config.
-- **Keep tracked benchmarks deterministic.** Serialize reproducible inputs,
-  objective values, and checks; keep wall-clock timing as a runtime-only
-  diagnostic.
-- **Run from the repo root.** Commands assume the template monorepo root
-  as working directory unless the child `AGENTS.md` states otherwise.
+- **The protocol is frozen.** `src/bond_api/protocol.py` fields, defaults,
+  and validation must not change casually — changes are versioned
+  migrations. This is the contract all 27 film packages code against.
+- **Keep scripts thin.** Business logic belongs in `src/bond_api/`, never in
+  `scripts/`.
+- **No mocks.** Tests must use real data, real files, real computation.
+- **Deterministic.** `to_json` output is byte-deterministic; no untracked
+  random reliance; reference film uses a fixed seed.
+- **Discovery binding order.** `load_provider` binds the slug before the
+  runtime protocol check, because `film` is part of the checkable surface.
+- **`sys.modules` caches slug imports.** Hosting two packages under the same
+  slug in different locations requires distinct slugs.
+- **Reserved key.** `__bond_type__` is reserved in serialized payloads.
 
 ## Cross-refs
 
 - Project contract: [`AGENTS.md`](../../../AGENTS.md)
 - README: [`README.md`](../../../README.md)
 - TODO: [`TODO.md`](../../../TODO.md)
-- Exemplar roster: [`projects/AGENTS.md`](../../../../../AGENTS.md)
+- Agent rules: [`docs/agent_instructions.md`](../../../docs/agent_instructions.md)

@@ -1,5 +1,45 @@
-# Code-centric exemplar: optional monorepo adapters only.
-allow_infrastructure_imports:
-  - src/analysis/_infra.py
-  - src/_runtime.py
-  - src/benchmark_support.py
+# BOND-API layer contract — enforced by scripts/audit/check_template_drift.py --strict
+# and manuscript/layer_contract.yaml conventions.
+#
+# The dependency arrow is one-directional: scripts/ → src/; tests/ → src/ + films/.
+# Nothing imports upward.
+
+surfaces:
+  - path: src/bond_api/protocol.py
+    role: pure_core
+    rules:
+      - "stdlib only: no infrastructure.* imports, no numpy, no I/O"
+      - "frozen dataclasses + runtime-checkable MissionProvider Protocol"
+      - "changes are versioned migrations, never silent edits"
+  - path: src/bond_api/registry.py
+    role: pure_service
+    rules:
+      - "no infrastructure.* imports"
+  - path: src/bond_api/discovery.py
+    role: pure_service
+    rules:
+      - "importlib + stdlib only"
+      - "DiscoveryError for every failure mode"
+  - path: src/bond_api/serialization.py
+    role: pure_service
+    rules:
+      - "json + dataclasses only; no pickling"
+      - "deterministic key-sorted output"
+  - path: src/bond_api/manuscript_variables.py
+    role: config_adapter
+    rules:
+      - "pyyaml for manuscript/config.yaml only"
+      - "token maps derive from config + protocol_surface(), never hardcoded metrics"
+  - path: films/
+    role: external_implementations
+    rules:
+      - "film packages are top-level modules named by slug exposing mission.MissionProvider"
+  - path: scripts/
+    role: thin_orchestrators
+    rules:
+      - "no protocol/discovery/serialization logic; call src/ only"
+  - path: tests/
+    role: zero_mock_suite
+    rules:
+      - "no unittest.mock, MagicMock, @patch, create_autospec"
+      - "real data, real files, real computation"

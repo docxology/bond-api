@@ -5,7 +5,7 @@ One folder per skill. Each ships `AGENTS.md`, `README.md`, `SKILL.md`.
 
 | Skill | Purpose |
 | --- | --- |
-| [`bond-api/`](bond-api/AGENTS.md) | Drive this exemplar end-to-end. |
+| [`bond-api/`](bond-api/AGENTS.md) | Drive the BOND-API protocol package. |
 
 ## Skill contract
 

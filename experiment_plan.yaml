@@ -1,25 +1,19 @@
 conditions:
-  - name: conservative_step
+  - name: reference_film
     role: reference
-    description: "Stable gradient-descent step below the spectral bound."
-  - name: near_optimal_step
+    description: "SABLE, the protocol's own deterministic provider, exercises the full five-stage lifecycle."
+  - name: discovered_provider
     role: proposed
-    description: "Template-recommended step near the stable convergence region."
-  - name: aggressive_step
-    role: variant
-    description: "Stress condition near or above the stability boundary."
+    description: "Any film package discovered by slug convention on sys.path must satisfy the same contract."
 metrics:
   primary:
-    name: objective_value
-    direction: minimize
-protocol: "Run the deterministic quadratic optimization sweep with identical initialization, seeds, tolerance, and iteration cap across all declared step-size conditions."
-expected_figures:
-  - fig:convergence_plot
-  - fig:performance_benchmark
-  - fig:step_size_sensitivity
+    name: round_trip_fidelity
+    direction: maximize
+    definition: "Proportion of protocol objects that survive to_json/from_json with exact type and value equality."
+protocol: "Run the zero-mock test suite against the frozen protocol surface: invariant construction checks, exact JSON round-trips, registry add/drop semantics, and slug-based discovery of real film packages."
+expected_figures: []
 expected_tables:
-  - tbl:optimization_results
+  - tbl:mission_lifecycle
 baselines:
-  - conservative_step
-ablations:
-  - aggressive_step
+  - reference_film
+ablations: []

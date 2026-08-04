@@ -1,6 +1,6 @@
 # bond-api skill — AGENTS.md
 
-Project-scoped skill bundle for the `bond-api` exemplar.
+Project-scoped skill bundle for the `bond-api` protocol package.
 
 | File | Purpose |
 | --- | --- |
@@ -12,9 +12,9 @@ Project-scoped skill bundle for the `bond-api` exemplar.
 
 Agents that need to:
 
-- Drive the in-repo exemplar end-to-end.
-- Fork this exemplar as a starting scaffold.
-- Verify layer boundaries and thin-orchestrator contracts.
+- Work inside the BOND-API protocol package.
+- Implement film packages against the frozen contract.
+- Verify layer boundaries, zero-mock testing, and determinism.
 
 ## Cross-refs
 

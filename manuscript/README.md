@@ -1,83 +1,28 @@
-# `bond-api` - The Repository Exemplar
+# Manuscript
 
-This is the stable code exemplar for the Research Project Template: a tested numerical optimization implementation routed through the shared infrastructure, project test suite, and manuscript renderer.
+The BOND-API protocol manuscript: identity, methodology, conformance
+evidence, and reproducibility contract for the frozen mission protocol
+(Layer 1 of the BOND suite, codename *THE PROTOCOL*).
 
-It demonstrates the complete research pipeline from algorithm implementation through strict validation to multi-format result visualization.
+## Files
 
-## Template Architecture
+- `00_abstract.md` … `99_references.md` — manuscript sections, token-hydrated
+- `config.yaml` — paper metadata + `protocol:` parameters (token source)
+- `config.yaml.example` — reference copy for new projects
+- `preamble.md` — LaTeX preamble for PDF output
+- `references.bib` — BibTeX bibliography
+- `SYNTAX.md` — pandoc citation/cross-reference syntax
+- `AGENTS.md` — agent rules for this directory
 
-This project is explicitly designed to showcase the repository's three foundational pillars:
-
-1. **`infrastructure/` Layer**: The code delegates tracking, performance benchmarking, stability validation, and PDF rendering to the shared infrastructure packages at the repository root. Current package counts live in [`docs/_generated/COUNTS.md`](../../../../docs/_generated/COUNTS.md).
-2. **`tests/` Integrity**: A zero-mock suite ([`projects/working/bond/bond-api/tests/`](../tests/)) with **≥90%** coverage on `projects/working/bond/bond-api/src/`. Live test count and measured coverage: [`docs/_generated/COUNTS.md`](../../../../docs/_generated/COUNTS.md).
-3. **`docs/` Orchestration**: Project documentation under `projects/working/bond/bond-api/docs/` records the operational patterns and is checked by the repository documentation lint gates.
-
-## Manuscript Structure
-
-The `manuscript/` directory contains the raw markdown files that the renderer (`infrastructure/rendering/pdf_renderer.py`) transforms into the final academic PDF. These files are designed as a meta-narrative to demonstrate exactly how the repository executes:
-
-- `00_abstract.md`: Abstract; build variables and CSV-backed prose via `scripts/z_generate_manuscript_variables.py`.
-- `01_introduction.md`: Introduction of the infrastructure pillars bridging to CI/CD files.
-- `02_methodology.md`: Mathematical methods mapping to specific python script execution lines.
-- `03_results.md`: Convergence analysis built via `infrastructure.reporting`, pointing back at itself.
-- `04_conclusion.md`: Summary of the template automation and publication outputs.
-
-## Architecture
-
-The project acts as a bridge between custom mathematical logic and the repository's core:
-
-```mermaid
-graph TD
-    classDef infra fill:#f5f5f5,stroke:#333,stroke-width:2px;
-    classDef project fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
-    classDef docs fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-
-    subgraph "Project Space (`projects/working/bond/bond-api/`)"
-        Script["scripts/optimization_analysis.py"]:::project
-        Manuscript["manuscript/*.md"]:::project
-    end
-
-    subgraph "Template Ecosystem"
-        Tests["tests/ (see canonical facts)"]:::docs
-        Config["config.yaml & preamble.md"]:::docs
-
-        subgraph "`infrastructure/`"
-            Validation["infrastructure.validation"]:::infra
-            Scientific["infrastructure.scientific"]:::infra
-            Reporting["infrastructure.reporting"]:::infra
-            Rendering["infrastructure.rendering"]:::infra
-        end
-    end
-
-    Script -->|Delegates precision checks| Scientific
-    Script -->|Tested strictly by| Tests
-    Tests -->|Protected by| Validation
-    Script -->|Generates data for| Reporting
-    Reporting -->|Formats| Manuscript
-    Manuscript -->|Compiled with| Config
-    Config -->|Sent to| Rendering
-    Rendering -->|Produces| PDF["output/templates/bond-api/pdf/template_code_project_combined.pdf"]:::project
-```
-
-## Quick Start
-
-Experience the automated pipeline directly:
+## Quick commands
 
 ```bash
-# From repository root
-uv run python projects/working/bond/bond-api/scripts/optimization_analysis.py
+# Hydrate tokens (strict) into output/manuscript/ + output/data/manuscript_variables.json
+uv run python scripts/z_generate_manuscript_variables.py
 
-uv run python scripts/pipeline/stage_03_render.py --project templates/bond-api
-
-open output/templates/bond-api/pdf/template_code_project_combined.pdf
+# Check for unresolved tokens in the sources
+rg -n "\{\{[A-Z0-9_]+\}\}" [0-9][0-9]_*.md || echo "All tokens resolved"
 ```
 
-## AI Agent Directives
-
-If you are an AI agent operating in this repository, you **MUST** read [`AGENTS.md`](AGENTS.md) before executing any code modifications. It defines the zero-mock testing constraints and infrastructure coupling rules.
-
-## See also
-
-- [`SYNTAX.md`](SYNTAX.md) — Pandoc citation / cross-reference conventions for this manuscript.
-- [`../../../docs/guides/manuscript-semantics.md`](../../../../docs/guides/manuscript-semantics.md) — Repository-wide manuscript semantics.
-- [`../../../AGENTS.md`](../../../AGENTS.md#permanent-canonical-exemplars) — public exemplar roster.
+See [`docs/agent_instructions.md`](../docs/agent_instructions.md) for the
+token protocol and verification checklist.

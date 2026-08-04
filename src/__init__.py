@@ -1,40 +1,6 @@
-"""Small code project - numerical optimization utilities.
+"""BOND-API source package.
 
-This project demonstrates a small, fully-tested codebase implementing
-basic numerical optimization algorithms with comprehensive testing
-and analysis capabilities.
+``src/`` hosts the ``bond_api`` package — the frozen mission protocol
+contract for the BOND film suite. All business logic lives here; scripts stay
+thin wrappers.
 """
-
-from .invariants import (
-    InvariantResult,
-    OptimizerSweepConfig,
-    all_invariants,
-    convergence_invariants,
-    gradient_consistency_invariants,
-    trajectory_invariants,
-)
-from .optimizer import (
-    OptimizationResult,
-    compute_gradient,
-    gradient_descent,
-    make_quadratic_problem,
-    quadratic_function,
-    simulate_trajectory,
-)
-
-__all__ = [
-    # Optimizer primitives
-    "quadratic_function",
-    "gradient_descent",
-    "compute_gradient",
-    "make_quadratic_problem",
-    "simulate_trajectory",
-    "OptimizationResult",
-    # Numerical invariants (driven by scripts/build_dashboard.py)
-    "InvariantResult",
-    "OptimizerSweepConfig",
-    "all_invariants",
-    "convergence_invariants",
-    "gradient_consistency_invariants",
-    "trajectory_invariants",
-]

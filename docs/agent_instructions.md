@@ -1,160 +1,105 @@
-# AI Agent Instructions — bond-api Exemplar
+# AI Agent Instructions — BOND-API Protocol Package
 
 ## Why This File Exists
 
-`bond-api` is the **control positive** for the template repository: the canonical example proving that the computational-research path works correctly. Deviating from the rules below — introducing a mock, moving math to scripts/, breaking the src/infrastructure boundary — breaks the exemplar purpose and misleads future users who study this project to understand how the template works.
+`bond-api` is the **frozen mission protocol contract** for the BOND film
+suite. Every downstream package (coordinators, orchestrators, CLIs, and the
+film packages) is coded against this surface. Deviating from the rules below —
+introducing a mock, moving logic to scripts/, breaking the layer boundary,
+silently editing the protocol — breaks the contract and misleads every agent
+that implements against it.
 
 Read this file before touching any other file in this project.
 
 ---
 
-## Rule 1: Read the Hub First
+## Rule 1: The Protocol Is Frozen
 
-Reading order is mandatory, not advisory. Each document gates a category of action:
+`src/bond_api/protocol.py` defines the contract: the frozen dataclasses
+(`MissionBrief`, `ReconRequest`, `ReconReport`, `MissionPlan`,
+`MissionOutcome`, `Debrief`, `Provenance`, `Asset`, `Constraint`, `Finding`,
+`Step`) and the runtime-checkable `MissionProvider` Protocol.
 
-| Document | Governs | Skip consequence |
-|---|---|---|
-| **This file** | All modifications | Risk all violations below |
-| [`architecture.md`](architecture.md) | Any file-boundary change | Risk violating src/scripts boundary |
-| [`testing_philosophy.md`](testing_philosophy.md) | Any test modification | Risk introducing mocks or reducing coverage |
-| [`rendering_pipeline.md`](rendering_pipeline.md) | Any manuscript or output change | Risk unresolved `{{VARIABLE}}` tokens in PDF |
-| [`style_guide.md`](style_guide.md) | Any source code modification | Risk mock usage, wrong import layer, bad error messages |
-| [`syntax_guide.md`](syntax_guide.md) | Any manuscript `.md` modification | Risk hardcoded numbers, broken figure references |
-
----
+- Do **not** change the dataclasses' fields, defaults, or validation
+  casually. A change is a **versioned migration** (bump `__version__`, keep
+  the old surface importable) — never a silent edit.
+- Do **not** add `infrastructure.*` imports, `numpy`, or other heavy
+  dependencies to the core. The protocol must stay liftable into any Python
+  environment (stdlib + `pyyaml` for config parsing only).
 
 ## Rule 2: Coverage Gate — ≥90% on `src/`
 
-The test suite spans `test_optimizer.py` (pure math), `test_analysis_integration.py` (orchestration), `test_analysis_coverage.py` (orchestration branches and error paths), `test_experiment_config.py`, `test_figures_orchestration.py`, `test_dashboard_config.py`, `test_invariants.py`, `test_invariants_and_dashboard.py`, `test_manuscript_variables.py`, `test_documentation.py` (API doc helpers), and `test_scripts_smoke.py` (auxiliary script smoke). Both the project `pyproject.toml` and the root pipeline gate coverage at **90%**. Live test count + current coverage percentage live in [`docs/_generated/COUNTS.md`](../../../../docs/_generated/COUNTS.md) — do not hardcode either number in prose, because both drift faster than the docs touching them.
-
-Before modifying `src/optimizer.py`, count the existing tests for the function you are changing. After modifying, run:
-
 ```bash
-uv run pytest projects/working/bond/bond-api/tests/ \
-    --cov=projects/working/bond/bond-api/src \
-    --cov-fail-under=90 \
-    --cov-report=term-missing \
-    -v
+uv run pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing -v
 ```
 
 If coverage drops, do not delete tests to make the number work — fix the gap.
 
----
-
 ## Rule 3: The Thin Orchestrator Boundary — `scripts/` vs `src/`
 
-**`src/optimizer.py`** contains pure mathematical functions: no file I/O, no infrastructure imports, no side-effects, stdlib `logging` only.
+`src/bond_api/` contains all business logic. `scripts/*.py` are thin
+orchestrators: they bootstrap `sys.path`, parse CLI arguments, call `src/`
+functions, and print results. No protocol semantics, discovery logic, or
+serialization details belong in scripts.
 
-**`scripts/*.py`** contains experiment coordination: loops over step sizes, calls to `src/` functions, delegation to `infrastructure.*`, writing CSVs and PNGs.
+**Forbidden**: re-implementing discovery, validation, or JSON encoding inside
+a script.
 
-**The boundary test**: If a line of code in `scripts/` contains a mathematical expression that determines the algorithm's output (a gradient, an update step, a convergence check), it violates the boundary. Move that expression to `src/` and write a test for it.
+## Rule 4: No Mocks
 
-**Forbidden**:
-```python
-# In scripts/optimization_analysis.py — BAD
-x = x - alpha * (x - 1.0)   # Gradient update rule belongs in src/
-```
-
-**Correct**:
-```python
-# In scripts/optimization_analysis.py — GOOD
-result = gradient_descent(x0, obj_func, grad_func, step_size=alpha)
-```
-
----
-
-## Rule 4: "Show, Not Tell" Documentation
-
-When updating `manuscript/` files, use explicit, verifiable references instead of vague descriptions.
-
-**BAD** (vague, unverifiable):
-```markdown
-Our testing framework validates numerical accuracy using standard approaches.
-```
-
-**GOOD** (concrete, linkable):
-```markdown
-`projects/working/bond/bond-api/tests/test_optimizer.py::TestComputeGradient` validates gradient
-accuracy against analytical solutions without mocks, using `numpy` arrays with known values.
-```
-
-**BAD** (vague):
-```markdown
-The infrastructure renders the manuscript to PDF automatically.
-```
-
-**GOOD** (concrete):
-```markdown
-`infrastructure/rendering/pdf_renderer.py` orchestrates Pandoc → XeLaTeX to produce
-`output/templates/bond-api/pdf/template_code_project_combined.pdf` from substituted markdown in `projects/working/bond/bond-api/output/manuscript/`.
-```
-
----
+No `unittest.mock`, `MagicMock`, `@patch`, or `create_autospec` anywhere in
+`tests/`. Tests exercise real providers (the reference film `films/sable/`,
+scripted in-test providers) with real data and real computation.
 
 ## Rule 5: Determinism Policy
 
-Prefer fixed inputs in `src/` and tests. When a test uses random draws (e.g., timing on large random arrays), two requirements apply:
+- Fixed seeds; no untracked random reliance.
+- `to_json` output is byte-deterministic (key-sorted, fixed indent) — tests
+  assert exact equality, not bounds.
+- Any future timing assertions must use bounds, not exact values, and must
+  document why timing is the relevant property.
 
-1. Assertions must use **bounds** (`assert elapsed < 5.0`), not exact values (`assert elapsed == 0.003`).
-2. The test docstring must explain why timing is the relevant property to check.
+## Rule 6: Manuscript Variables Are Injected, Never Hand-Authored
 
-Fixed seeds are acceptable for `numpy.random` in timing tests:
-```python
-rng = np.random.default_rng(42)
-large_A = rng.standard_normal((50, 50))
-```
+Every token in `manuscript/*.md` resolves through
+`src/bond_api/manuscript_variables.py::generate_variables()`, which reads
+`manuscript/config.yaml` and the live protocol surface. Hardcoding a metric in
+prose is the primary cause of manuscripts drifting from code.
 
-Prefer analytical inputs over random inputs whenever a mathematical property can be directly verified.
+The token pipeline:
 
----
+1. `scripts/z_generate_manuscript_variables.py` calls
+   `generate_variables()` (strict by default).
+2. It writes `output/data/manuscript_variables.json`.
+3. `resolve_manuscript_tree()` copies each `NN_*.md` section to
+   `output/manuscript/` with tokens substituted; strict mode fails on any
+   unresolved `{{TOKEN}}`.
 
-## Rule 6: Style and Syntax Guides Govern Their Domains
-
-- **[`style_guide.md`](style_guide.md)** governs: `src/optimizer.py`, `tests/test_optimizer.py`, `scripts/*.py` — mock prohibition, infrastructure delegation, thin orchestrator, error message format, type hints.
-- **[`syntax_guide.md`](syntax_guide.md)** governs: `manuscript/*.md` — `{{VARIABLE}}` injection, `[@label]` Pandoc-crossref cross-references, figure labels, table captions.
-
-Do not apply code-style rules to manuscript prose, and do not apply manuscript syntax rules to Python source.
-
----
-
-## Rule 7: `output/` Is Disposable — Never Edit Generated Files
-
-The entire `projects/working/bond/bond-api/output/` tree is written by the pipeline and overwritten on every run. Editing a file in `output/` has zero lasting effect and will confuse future agents.
-
-If you need to change what a generated file contains, change the **generator**:
-- To change `output/data/optimization_results.csv` → modify `src/analysis/` (re-run via `scripts/optimization_analysis.py`)
-- To change `output/manuscript/03_results.md` → modify `manuscript/03_results.md` (the template) and/or `scripts/z_generate_manuscript_variables.py` (the variable definitions)
-- To change `output/pdf/template_code_project_combined.pdf` → modify the manuscript source files, then re-render
-
-See [`output_conventions.md`](output_conventions.md) for the complete regeneration sequence.
-
----
+Adding a token: add it to the `variables` dict in
+`src/bond_api/manuscript_variables.py`, reference it in a manuscript file,
+and let `tests/test_manuscript_variables.py::test_all_manuscript_tokens_are_generated`
+verify the cross-reference.
 
 ## Verification Checklist
 
-Run all three commands before submitting any change to this project:
+Run all of these before submitting any change:
 
 ```bash
 # 1. Tests pass and coverage gate is met
-uv run pytest projects/working/bond/bond-api/tests/ \
-    --cov=projects/working/bond/bond-api/src \
-    --cov-fail-under=90 -q
+uv run pytest tests/ --cov=src --cov-fail-under=90 -q
 
-# 2. No mocks exist anywhere in tests/
-grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" \
-    projects/working/bond/bond-api/tests/ || echo "Clean — no mocks found"
+# 2. No mocks anywhere in tests/
+grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/ || echo "Clean"
 
-# 3. The mathematical primitives (optimizer.py, invariants.py) have no infrastructure imports.
-#    These two files MUST remain infrastructure-free so they are copy-pasteable into any
-#    Python environment without the pipeline installed. Other `src/` modules (`analysis/`,
-#    `dashboard.py`, `manuscript_variables.py`) are orchestration layers and may import
-#    `infrastructure.*` behind try/except fallbacks; that is intentional and documented in
-#    `src/AGENTS.md` and `architecture.md`.
-grep -nE "^(from|import) infrastructure" \
-    projects/working/bond/bond-api/src/optimizer.py \
-    projects/working/bond/bond-api/src/invariants.py \
-    && echo "VIOLATION — math primitive imports infrastructure" \
-    || echo "Clean — math primitives are infrastructure-free"
+# 3. Pure core is infrastructure-free
+grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
+
+# 4. No leftover exemplar scaffold strings (bracket split keeps this doc from matching itself)
+rg -n "template[_]code_project" . || echo "Clean"
+
+# 5. Ruff and mypy clean on src/, scripts/, films/
+uv run ruff check src/ scripts/ films/
+uv run mypy src/ scripts/ films/
 ```
 
-All three must produce zero violations (or the "Clean" message for checks 2 and 3).
+All must pass (or print the "Clean" marker).

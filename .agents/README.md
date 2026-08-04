@@ -1,14 +1,18 @@
-# .agents — README.md
+# .agents
 
-Agent-facing orientation for the project-local agent scaffolding in this
-exemplar.
+Per-folder technical reference for the project-local agent scaffolding.
 
-| File | Purpose |
+| Subdirectory | Purpose |
 | --- | --- |
-| [`AGENTS.md`](AGENTS.md) | Per-folder technical reference and update policy. |
-| [`skills/`](skills/README.md) | Project-local skill catalog (`SKILL.md` + `AGENTS.md` + `README.md` per skill). |
+| [`skills/`](skills/AGENTS.md) | Project-local skills. Each ships `SKILL.md` with YAML frontmatter. |
 
-Start with [`skills/bond-api/SKILL.md`](skills/bond-api/SKILL.md)
-when working inside this exemplar — it carries when-to-use guidance, quick
-reference commands, and pitfalls. The technical contract for the whole
-exemplar is [`../AGENTS.md`](../AGENTS.md).
+## When to update
+
+- A new skill specific to this package lands → add a folder under
+  `skills/<name>/` with `SKILL.md`, `AGENTS.md`, `README.md`.
+
+The project-level skill for BOND-API lives at
+[`skills/bond-api/SKILL.md`](skills/bond-api/SKILL.md) — load it when working
+inside this package; it carries when-to-use guidance, quick reference
+commands, and pitfalls. The package operating contract is
+[`../AGENTS.md`](../AGENTS.md).
