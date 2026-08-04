@@ -8,6 +8,7 @@
 | `src/bond_api/discovery.py` | Slug-based film discovery on `sys.path` |
 | `src/bond_api/registry.py` | `GadgetRegistry` + `MissionRegistry` |
 | `src/bond_api/serialization.py` | Deterministic JSON round-trips |
+| `src/bond_api/capabilities.py` | Soft brief validation, plan schema checks, provenance hashing, debrief normalization |
 | `src/bond_api/manuscript_variables.py` | Token hydration from `config.yaml` |
 | `films/sable/mission.py` | Reference film implementing the contract |
 | `scripts/` | Thin orchestrators (preflight, demo mission, token hydration) |

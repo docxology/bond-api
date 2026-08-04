@@ -252,11 +252,14 @@ class MissionProvider(Protocol):
 
     film: str
 
-    def brief(self) -> MissionBrief: ...
-    def recon(self, request: ReconRequest) -> ReconReport: ...
-    def plan(self, brief: MissionBrief) -> MissionPlan: ...
-    def execute(self, plan: MissionPlan) -> MissionOutcome: ...
-    def debrief(self, outcome: MissionOutcome) -> Debrief: ...
+    # The stub bodies below are typing markers, never executed — coverage.py
+    # arc analysis on single-line `...` bodies is version-sensitive, so mark
+    # them explicitly excluded rather than chase a moving branch count.
+    def brief(self) -> MissionBrief: ...  # pragma: no cover
+    def recon(self, request: ReconRequest) -> ReconReport: ...  # pragma: no cover
+    def plan(self, brief: MissionBrief) -> MissionPlan: ...  # pragma: no cover
+    def execute(self, plan: MissionPlan) -> MissionOutcome: ...  # pragma: no cover
+    def debrief(self, outcome: MissionOutcome) -> Debrief: ...  # pragma: no cover
 
 
 def run_mission(provider: MissionProvider, request: ReconRequest) -> Debrief:

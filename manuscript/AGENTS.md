@@ -15,10 +15,10 @@ the section modification workflow.
 
 | File / Pattern | Role | Tokens |
 |---|---|---|
-| `00_abstract.md` | Abstract; protocol identity and surface summary | `BOND_IDENTITY`, `BOND_CODENAME`, `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_VERSION` |
+| `00_abstract.md` | Abstract; protocol identity and surface summary | `BOND_IDENTITY`, `BOND_CODENAME`, `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_VERSION` |
 | `01_introduction.md` | Why the protocol exists; package contents; reader's guide | `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS` |
-| `02_methodology.md` | Lifecycle, frozen dataclasses, provider contract, discovery, serialization, registries | None |
-| `03_results.md` | Protocol surface + conformance evidence | `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS` |
+| `02_methodology.md` | Lifecycle, frozen dataclasses, provider contract, discovery, serialization, registries, capability helpers | None |
+| `03_results.md` | Protocol surface + conformance evidence | `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES` |
 | `04_conclusion.md` | What Phase 1 delivers; freeze statement | `BOND_NUM_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_VERSION` |
 | `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `PYTHON_VERSION`, `GENERATION_TIMESTAMP` |
 | `06_reproducibility.md` | Determinism policy, artifact inventory, token hydration | None |

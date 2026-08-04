@@ -15,6 +15,7 @@ flowchart LR
     T --> CFG[conftest.py<br/>sys.path: src/ + films/]
     T --> TP[test_protocol.py<br/>Frozen dataclass invariants · provider protocol]
     T --> TS[test_serialization.py<br/>Exact JSON round-trips · determinism]
+    T --> TC[test_capabilities.py<br/>Brief validation · plan schema · provenance hashing · debrief normalization]
     T --> TR[test_registry.py<br/>Gadget · mission registries]
     T --> TD[test_discovery.py<br/>Slug loading · binding · autodiscovery]
     T --> TMV[test_manuscript_variables.py<br/>Token map · live cross-reference gate]

@@ -32,6 +32,9 @@ def test_generate_variables_defaults() -> None:
     assert "Asset" in variables["BOND_PROTOCOL_DATACLASSES"]
     assert variables["BOND_NUM_PROVIDER_METHODS"] == "5"
     assert "brief" in variables["BOND_PROVIDER_METHODS"]
+    assert variables["BOND_NUM_CAPABILITIES"] == "9"
+    assert "validate_brief" in variables["BOND_CAPABILITIES"]
+    assert "fingerprint" in variables["BOND_CAPABILITIES"]
     assert all(isinstance(value, str) for value in variables.values())
 
 

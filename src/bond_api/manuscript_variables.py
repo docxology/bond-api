@@ -20,6 +20,7 @@ from typing import Any
 
 import yaml
 
+from bond_api.capabilities import CAPABILITY_NAMES
 from bond_api.protocol import CODENAME, IDENTITY, protocol_surface
 
 __all__ = ["generate_variables", "load_manuscript_config", "resolve_manuscript_tree"]
@@ -72,6 +73,8 @@ def generate_variables(
         "BOND_PROTOCOL_DATACLASSES": ", ".join(surface["dataclasses"]),
         "BOND_NUM_PROVIDER_METHODS": str(len(surface["provider_methods"])),
         "BOND_PROVIDER_METHODS": ", ".join(surface["provider_methods"]),
+        "BOND_NUM_CAPABILITIES": str(len(CAPABILITY_NAMES)),
+        "BOND_CAPABILITIES": ", ".join(CAPABILITY_NAMES),
         "PYTHON_VERSION": platform.python_version(),
         "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }

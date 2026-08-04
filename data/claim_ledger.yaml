@@ -13,6 +13,13 @@ claims:
     source_tier: project_source
     freshness: active
     artifact_path: src/bond_api/protocol.py
+  - claim_id: capability-helper-count
+    kind: number
+    value: 9
+    source: projects/working/bond/bond-api/src/bond_api/capabilities.py CAPABILITY_NAMES
+    source_tier: project_source
+    freshness: active
+    artifact_path: src/bond_api/capabilities.py
   - claim_id: coverage-floor
     kind: number
     value: 90

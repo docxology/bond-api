@@ -41,6 +41,8 @@ cross-reference gate is
 | `BOND_PROTOCOL_DATACLASSES` | Comma-joined dataclass names |
 | `BOND_NUM_PROVIDER_METHODS` | Count of provider stages |
 | `BOND_PROVIDER_METHODS` | Comma-joined stage names |
+| `BOND_NUM_CAPABILITIES` | Count of capability helpers |
+| `BOND_CAPABILITIES` | Comma-joined capability helper names |
 | `PYTHON_VERSION` | Interpreter version at generation time |
 | `GENERATION_TIMESTAMP` | UTC ISO timestamp at generation time |
 

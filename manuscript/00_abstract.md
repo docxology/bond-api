@@ -8,6 +8,9 @@ defines {{BOND_NUM_DATACLASSES}} frozen dataclasses
 
 The package ships the machinery every coordinator needs: deterministic JSON
 round-trip serialization for all protocol objects, a gadget registry and a
-mission/package registry for discovered providers, and slug-based film
-discovery on `sys.path`. A reference film (SABLE) exercises the full lifecycle.
-This is version {{BOND_VERSION}} of the contract.
+mission/package registry for discovered providers, slug-based film discovery
+on `sys.path`, and {{BOND_NUM_CAPABILITIES}} capability helpers
+({{BOND_CAPABILITIES}}) layered on the frozen surface — soft brief
+validation, plan-step schema checks, provenance hashing, and debrief
+normalization. A reference film (SABLE) exercises the full lifecycle. This is
+version {{BOND_VERSION}} of the contract.

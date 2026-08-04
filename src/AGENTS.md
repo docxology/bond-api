@@ -27,6 +27,7 @@ flowchart LR
     PKG --> DISC[discovery.py<br/>load_provider · discover · DiscoveryError]
     PKG --> REG[registry.py<br/>GadgetRegistry · MissionRegistry]
     PKG --> SER[serialization.py<br/>to_json/from_json · to_dict/from_dict · SerializationError]
+    PKG --> CAP[capabilities.py<br/>validate_brief · plan_schema · fingerprint · normalize_debrief]
     PKG --> MV[manuscript_variables.py<br/>generate_variables · resolve_manuscript_tree]
     PKG --> INIT[__init__.py<br/>Public surface · __version__ · identity]
 ```
@@ -46,7 +47,7 @@ from bond_api.discovery import discover
 from bond_api.registry import MissionRegistry
 from bond_api.protocol import ReconRequest, run_mission
 
-providers = discover(search_paths=["films"])          # {slug: provider}
+providers = discover(search_paths=["films"])  # {slug: provider}
 registry = MissionRegistry()
 registry.register_all(providers)
 debrief = run_mission(registry.lookup("sable"), ReconRequest(goal="survey"))
@@ -56,7 +57,7 @@ debrief = run_mission(registry.lookup("sable"), ReconRequest(goal="survey"))
 from bond_api.protocol import MissionBrief
 from bond_api.serialization import to_json, from_json
 
-wire = to_json(brief)                 # deterministic JSON, no pickling
+wire = to_json(brief)  # deterministic JSON, no pickling
 round_tripped = from_json(wire, expected=MissionBrief)
 ```
 
@@ -98,6 +99,25 @@ round_tripped = from_json(wire, expected=MissionBrief)
   tagged JSON round-trips (reserved key `__bond_type__`).
 - `to_dict(obj)` / `from_dict(data)` — dict form of the same contract.
 - `SerializationError(ValueError)`.
+
+### capabilities.py
+
+- `brief_issues(brief) -> tuple[str, ...]` — advisory brief issues (duplicate
+  asset names, duplicate constraint kinds, duplicate objectives, whitespace-
+  slack asset names).
+- `validate_brief(brief) -> BriefReport` — frozen report with `ok` and
+  `issues`; `BriefReport` is exported.
+- `plan_schema_issues(plan, expected_steps=None) -> tuple[str, ...]` /
+  `require_plan_schema(plan, expected_steps=None) -> None` — duplicate step
+  names, malformed param keys, non-serializable params, and optional exact
+  expected step-name sequence (raises `ValueError`).
+- `fingerprint(*parts) -> str` — deterministic SHA-256 over canonical JSON.
+- `hash_provenance(provenance) -> str` — fingerprint of all four fields.
+- `derive_provenance(*, package_version, seed, inputs=(), wall_time_s=0.0) ->
+  Provenance` — provenance with `input_hash` derived from `inputs`.
+- `normalize_lessons(lessons) -> tuple[str, ...]` /
+  `normalize_debrief(debrief) -> Debrief` — strip/drop/dedupe lessons
+  (first-occurrence order), re-validate outcome.
 
 ### manuscript_variables.py
 

@@ -36,6 +36,7 @@ suite at `projects/working/bond/bond-api/`.
 | `src/bond_api/registry.py` | `GadgetRegistry` + `MissionRegistry` — pure |
 | `src/bond_api/discovery.py` | Slug-based discovery on `sys.path` — pure (importlib) |
 | `src/bond_api/serialization.py` | Tagged JSON round-trips — pure |
+| `src/bond_api/capabilities.py` | Soft brief validation, plan schema checks, provenance hashing, debrief normalization — pure (stdlib + `serialization`) |
 | `src/bond_api/manuscript_variables.py` | Reads `manuscript/config.yaml` (pyyaml) |
 | `films/<slug>/mission.py` | Film implementations of the contract (external) |
 | `scripts/` | Thin orchestrators; may add paths and call `src/` only |

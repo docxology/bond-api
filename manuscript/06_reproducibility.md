@@ -8,6 +8,10 @@ The protocol makes determinism a contract, not a hope:
 - the reference film uses a fixed seed and performs no random draws;
 - `to_json` output is key-sorted with fixed indentation, so identical objects
   serialize byte-identically;
+- provenance hashing (`fingerprint`, `hash_provenance`, `derive_provenance`)
+  uses the SHA-256 secure hash standard [@nist_fips180_4] over the canonical
+  JSON encoding, so identical inputs yield identical fingerprints across
+  processes and platforms;
 - tests use fixed inputs throughout; any future timing assertions must use
   bounds, not exact values, per `docs/testing_philosophy.md`.
 

@@ -3,12 +3,17 @@
 Forward-only backlog for BOND-API, the frozen mission protocol contract
 (Layer 1 of the BOND suite).
 
-## Status — Phase 1 (protocol layer)
+## Status — Phase 4 (deep improvement)
 
-Delivered: frozen protocol dataclasses + `MissionProvider` contract,
-slug-based discovery, gadget/mission registries, deterministic JSON
-serialization, token-hydrated manuscript variables, reference film (SABLE),
-zero-mock test suite, thin orchestrator scripts.
+Delivered: the frozen protocol surface (11 dataclasses + `MissionProvider`
+contract) plus capability helpers layered on top — soft `MissionBrief`
+validation (`brief_issues` / `validate_brief`), plan-step schema checks
+(`plan_schema_issues` / `require_plan_schema`), deterministic provenance
+hashing (`fingerprint` / `hash_provenance` / `derive_provenance`, SHA-256
+over canonical JSON), and debrief normalization (`normalize_lessons` /
+`normalize_debrief`). Every phase-1 type, field, and CLI is untouched and
+backward compatible; the reference film (SABLE) and all downstream consumers
+keep working unchanged.
 
 ## Current validation evidence
 

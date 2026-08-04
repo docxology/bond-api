@@ -35,6 +35,7 @@ branch has a dedicated test.
 |---|---|
 | `test_protocol.py` | Frozen dataclass invariants, equality/hash semantics, `MissionProvider` runtime checks, `run_mission` flow order, `protocol_surface()` |
 | `test_serialization.py` | Exact JSON round-trips for every protocol type, container-type preservation, determinism, malformed/unsupported inputs |
+| `test_capabilities.py` | Soft brief validation, plan-step schema checks, provenance fingerprinting/derivation, debrief normalization, regression guard that capabilities coexist with the frozen flow |
 | `test_registry.py` | Gadget register/merge/overwrite/drop, mission register/lookup/drop, ordering and containment |
 | `test_discovery.py` | Slug loading, film binding, identity mismatch, all failure modes, autodiscovery |
 | `test_manuscript_variables.py` | Config loading, token map, live manuscript cross-reference gate, strict/draft resolution |

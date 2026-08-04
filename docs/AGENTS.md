@@ -38,6 +38,7 @@ package implements. Changes are versioned migrations, never silent edits.
 | `src/bond_api/discovery.py` | REQUIRED | `tests/test_discovery.py` |
 | `src/bond_api/registry.py` | REQUIRED | `tests/test_registry.py` |
 | `src/bond_api/serialization.py` | REQUIRED | `tests/test_serialization.py` |
+| `src/bond_api/capabilities.py` | REQUIRED | `tests/test_capabilities.py` |
 | `src/bond_api/manuscript_variables.py` | REQUIRED | `tests/test_manuscript_variables.py` + live token cross-reference |
 | `tests/` (all `test_*.py`) | REQUIRED | 90% coverage gate on `src/` |
 | `tests/conftest.py` | REQUIRED | Adds `src/` + `films/` to `sys.path`; without it discovery tests cannot collect |

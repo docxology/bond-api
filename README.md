@@ -13,6 +13,7 @@ stable, tested surface.
 | `src/bond_api/discovery.py` | Discover film packages on `sys.path` by slug convention — a top-level module named by its slug exposing `mission.MissionProvider` |
 | `src/bond_api/registry.py` | `GadgetRegistry` (film → gadgets) and `MissionRegistry` (slug → provider) |
 | `src/bond_api/serialization.py` | Deterministic JSON round-trips of every protocol object — no pickling |
+| `src/bond_api/capabilities.py` | Capability helpers on the frozen surface: soft brief validation, plan-step schema checks, provenance hashing (SHA-256), debrief normalization |
 | `src/bond_api/manuscript_variables.py` | `{{TOKEN}}` hydration from `manuscript/config.yaml` + the live protocol surface |
 | `films/sable/mission.py` | The reference film: a real, deterministic provider implementing the contract |
 | `scripts/` | Thin orchestrators only (preflight, demo mission, token hydration) |
@@ -51,7 +52,11 @@ A film package is a top-level module named by its slug (e.g. `sable`) exposing
 at construction time; every outcome carries `Provenance` (package version,
 seed, input hash, wall time) so results are auditable. Coordinators find
 providers with `discover()`, hold them in a `MissionRegistry`, and move
-artifacts across process boundaries with `to_json` / `from_json`.
+artifacts across process boundaries with `to_json` / `from_json`. On top of
+the frozen surface, `bond_api.capabilities` adds soft brief validation
+(`validate_brief`), plan-step schema checks (`require_plan_schema`),
+provenance hashing (`fingerprint` / `hash_provenance` / `derive_provenance`),
+and debrief normalization (`normalize_debrief`).
 
 ## Implementation rules (from `AGENTS.md`)
 

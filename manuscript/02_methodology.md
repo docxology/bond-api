@@ -62,3 +62,28 @@ objects produce byte-identical text. No pickling is used anywhere.
 callables, handlers). `MissionRegistry` is the mission/package registry of
 discovered providers, keyed by film slug, filled from `discover()` and used by
 coordinators to drive providers without touching import machinery again.
+
+## Capability helpers
+
+The frozen contract is deliberately minimal; capability helpers layer
+reusable semantics on top of it without changing a single field or flow
+(`src/bond_api/capabilities.py`):
+
+- **Soft brief validation** — `brief_issues` / `validate_brief` report
+  advisory issues (duplicate asset names, duplicate constraint kinds,
+  duplicate objectives, whitespace-slack asset names) that a coordinator may
+  tolerate or escalate, complementing the constructor's hard invariants.
+- **Plan-step schema checks** — `plan_schema_issues` / `require_plan_schema`
+  verify no duplicate step names, well-formed param keys, JSON-serializable
+  params, and optionally an exact expected step-name sequence.
+- **Provenance hashing** — `fingerprint` is a deterministic SHA-256 over the
+  canonical JSON encoding of arbitrary parts; `hash_provenance` fingerprints a
+  full provenance record; `derive_provenance` builds a provenance whose
+  `input_hash` follows from the mission's inputs, making outcomes auditable
+  without re-running the film.
+- **Debrief normalization** — `normalize_lessons` / `normalize_debrief` strip,
+  drop, and dedupe lessons while preserving first-occurrence order, and
+  re-validate the outcome.
+
+All helpers are deterministic and serialize cleanly through the same JSON
+surface as the protocol objects they consume.

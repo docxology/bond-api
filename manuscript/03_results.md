@@ -24,5 +24,10 @@ floor is 90% line + branch coverage on `src/` (`--cov-fail-under=90`).
 - **Determinism**: the reference film runs the full lifecycle with fixed
   seed and zero wall-clock dependence; outcomes are byte-identical across
   runs.
+- **Capability helpers**: each of the {{BOND_NUM_CAPABILITIES}} helpers
+  ({{BOND_CAPABILITIES}}) has dedicated tests — advisory brief issues,
+  plan-schema matches and violations, SHA-256 fingerprint determinism and
+  key-order independence, derived provenance records, and lesson
+  normalization (strip/drop/dedupe, first-occurrence order).
 
 All tests use real data and real computation — no mocks.
