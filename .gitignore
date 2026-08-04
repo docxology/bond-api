@@ -13,3 +13,6 @@ __pycache__/
 
 # Generated artifacts — regenerate, never hand-edit
 output/
+
+# build artifacts (setuptools/uv path-dep builds)
+build/
