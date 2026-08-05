@@ -150,10 +150,16 @@ def fingerprint(*parts: Any) -> str:
 
     Canonical means key-sorted with fixed indentation (see
     :func:`bond_api.serialization.to_json`), so identical parts always
-    produce the same fingerprint — across processes and platforms. Use it for
-    provenance input hashes and audit chains. Parts must be JSON-serializable
-    (a :class:`~bond_api.serialization.SerializationError` propagates
-    otherwise).
+    produce the same fingerprint. Use it for provenance input hashes and audit
+    chains. Parts must be JSON-serializable (a
+    :class:`~bond_api.serialization.SerializationError` propagates otherwise).
+
+    Evidence, not assertion: ``tests/test_golden_determinism.py`` pins the
+    digest of fixed inputs to checked-in literals and re-derives them in a
+    freshly spawned interpreter under ``PYTHONHASHSEED=random``, which is what
+    "across processes" means. Cross-*platform* stability follows from SHA-256
+    plus a byte-stable encoding, and is checked wherever the suite runs — but
+    the suite cannot assert a platform it has never executed on.
     """
     digest = hashlib.sha256()
     for part in parts:

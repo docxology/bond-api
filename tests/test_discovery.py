@@ -245,6 +245,24 @@ def test_discover_binds_and_collects_tmp_films(tmp_path: Path) -> None:
     assert providers["nu"].film == "nu"
 
 
+def test_discover_skips_invalid_slugs_instead_of_raising() -> None:
+    """An invalid slug is skipped by ``discover``, not raised.
+
+    The methodology table used to claim ``discover`` raised ``DiscoveryError``
+    here because "slug validation precedes loading". It does not: validation
+    lives inside ``load_provider``, whose error ``discover`` catches. This test
+    pins the real behavior on both sides of the contrast so the documented
+    split cannot drift again.
+    """
+    assert discover(slugs=["9bad-slug"], search_paths=[FILMS_DIR]) == {}
+    assert discover(slugs=["bad/slug", "with space", "a.b", ""], search_paths=[FILMS_DIR]) == {}
+    # A healthy film alongside a malformed slug still loads.
+    assert set(discover(slugs=["9bad-slug", "sable"], search_paths=[FILMS_DIR])) == {"sable"}
+    # ...while the strict entry point is loud about the very same slug.
+    with pytest.raises(DiscoveryError, match="invalid film slug"):
+        load_provider("9bad-slug", search_paths=[FILMS_DIR])
+
+
 def test_discover_nonexistent_search_path() -> None:
     with pytest.raises(DiscoveryError, match="search path"):
         discover(search_paths=["/definitely/not/a/real/dir_xyz"])

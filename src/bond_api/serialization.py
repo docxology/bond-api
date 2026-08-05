@@ -9,10 +9,14 @@ Format notes:
 * Protocol dataclasses encode as ``{"__bond_type__": "<ClassName>", ...fields}``.
 * ``tuple`` and ``list`` are distinguished with explicit tags so round-trips
   preserve container types exactly.
-* The single reserved key is ``__bond_type__`` — payload dicts (e.g. inside
-  :class:`~bond_api.protocol.Asset`) must not use it.
-* Only the exact protocol types round-trip; subclasses and unknown dataclasses
-  are rejected rather than silently flattened.
+* The single reserved key is ``__bond_type__``. Payload dicts (e.g. inside
+  :class:`~bond_api.protocol.Asset`) may not use it, and this is **enforced at
+  encode time**: a dict carrying the reserved key raises
+  :class:`SerializationError` rather than being written to the wire, where it
+  would decode back as a protocol object instead of a dict.
+* Only the exact protocol types round-trip. The check is on class *identity*,
+  not class name: a subclass, or an unrelated dataclass whose ``__name__``
+  shadows a protocol type, is rejected rather than silently flattened.
 """
 
 from __future__ import annotations
@@ -72,13 +76,32 @@ def _encode(value: Any) -> Any:
         for key in value:
             if not isinstance(key, str):
                 raise SerializationError(f"dict keys must be strings, got {type(key).__name__} in {value!r}")
+        if _TYPE_TAG in value:
+            # Encoding it would emit a wire object the decoder reads back as a
+            # tuple, list, or protocol dataclass — silently turning a dict into
+            # something else. Reject rather than corrupt.
+            raise SerializationError(
+                f"dict uses the reserved wire key {_TYPE_TAG!r}: payload dicts must not use it "
+                f"(offending dict: {value!r})"
+            )
         return {key: _encode(item) for key, item in value.items()}
     cls = type(value)
-    if dataclasses.is_dataclass(value) and cls.__name__ in _KNOWN_TYPES:
-        encoded: dict[str, Any] = {_TYPE_TAG: cls.__name__}
-        for field in dataclasses.fields(value):
-            encoded[field.name] = _encode(getattr(value, field.name))
-        return encoded
+    if dataclasses.is_dataclass(value):
+        # Identity, not name: a subclass or an unrelated dataclass whose
+        # ``__name__`` shadows a protocol type would otherwise be flattened
+        # onto the protocol type's fields and lose everything else.
+        known = _KNOWN_TYPES.get(cls.__name__)
+        if known is cls:
+            encoded: dict[str, Any] = {_TYPE_TAG: cls.__name__}
+            for field in dataclasses.fields(value):
+                encoded[field.name] = _encode(getattr(value, field.name))
+            return encoded
+        if known is not None:
+            raise SerializationError(
+                f"cannot serialize {cls.__module__}.{cls.__qualname__}: its name {cls.__name__!r} "
+                f"shadows protocol type {known.__module__}.{known.__qualname__} but is a different "
+                "class; only the exact protocol types round-trip"
+            )
     raise SerializationError(
         f"cannot serialize {cls.__name__}: protocol payloads must be JSON-serializable "
         "(str/int/float/bool/None/list/tuple/dict/protocol dataclasses)"

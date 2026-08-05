@@ -158,6 +158,12 @@ def discover(
     search path for top-level directories containing ``mission.py``. Slugs
     that fail to load are skipped so one broken film never hides the rest;
     use :func:`load_provider` when a single film must load strictly.
+
+    "Fail to load" includes an **invalid slug**: slug validation happens
+    inside :func:`load_provider`, whose ``DiscoveryError`` this function
+    catches, so ``discover(slugs=["9bad-slug"])`` returns ``{}`` rather than
+    raising. Search-path validation is the one check that runs before any
+    loading, so a non-existent search path *does* raise from here.
     """
     paths = _resolve_search_paths(search_paths)
     if slugs is None:

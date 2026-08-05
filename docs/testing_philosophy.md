@@ -90,12 +90,25 @@ them together rather than trusting convention:
 | `test_discovery.py` | Slug loading, film binding, identity mismatch, every failure mode, autodiscovery, unreadable search paths, `sys.path` restoration |
 | `test_manuscript_variables.py` | Config loading, token map, coverage-floor parsing, surface-gate positive control, live manuscript cross-reference, strict/draft resolution |
 | `test_scripts_smoke.py` | Real subprocess runs of `scripts/` (preflight, demo mission, token hydration) plus the `ast` thin-orchestrator gate |
+| `test_golden_determinism.py` | Literal golden wire text and SHA-256 digests, plus a fresh-interpreter re-derivation under a randomized hash seed |
+| `test_claim_ledger.py` | Re-derives every `data/claim_ledger.yaml` row from its cited source of truth; fails on a row with no verifier |
 
 ## Determinism
 
 - Fixed seeds and fixed inputs throughout; no random draws.
-- Serialization tests assert byte-identical output for identical objects.
-- Fingerprint tests assert stability across key orderings and across calls.
+- Serialization and fingerprint values are pinned to **checked-in literal
+  goldens** in `test_golden_determinism.py`, not to self-comparisons.
+  `to_json(o) == to_json(o)` and `fingerprint(x) == fingerprint(x)` hold for
+  any deterministic function; they demonstrate nothing about *which* bytes are
+  produced and stay green through an indent change, a container-tag rename, or
+  a salted digest. Self-comparisons remain in the suite as cheap smoke, but
+  they are not the evidence.
+- The "across processes" half of the determinism claim is tested by
+  re-deriving the same goldens in a freshly spawned interpreter under
+  `PYTHONHASHSEED=random`. The "across platforms" half is bounded by the
+  platforms the suite is actually run on: a literal golden fails loudly on a
+  platform that disagrees, but no test here can assert an untested platform.
+- Fingerprint tests also assert stability across key orderings.
 - Subprocess smoke tests assert on stable output lines, never timestamps.
 - Tests that mutate process state (`sys.path`) restore it before returning.
 

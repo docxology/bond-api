@@ -55,7 +55,8 @@ because the two callers want opposite things:
 
 | Situation | `load_provider` (single film) | `discover` (bulk) |
 |---|---|---|
-| Slug is not an importable module name | `DiscoveryError` | `DiscoveryError` (path/slug validation precedes loading) |
+| Search path is not an existing directory | `DiscoveryError` | `DiscoveryError` (path validation precedes any loading) |
+| Slug is not an importable module name | `DiscoveryError` | slug skipped |
 | Package missing, provider absent, constructor raises | `DiscoveryError` | slug skipped |
 | Provider fails the structural protocol check | `DiscoveryError` | slug skipped |
 | Provider declares a film different from its slug | `DiscoveryError` (identity mismatch) | slug skipped |
@@ -63,7 +64,14 @@ because the two callers want opposite things:
 
 A coordinator asking for one named film wants a loud failure; a coordinator
 sweeping the {{BOND_NUM_FILMS}}-film fleet wants every healthy film to load
-regardless of a sick one.
+regardless of a sick one. The split is not "validation before loading" versus
+"failures during loading": slug validation happens *inside* the per-slug load,
+which `discover` catches, so an explicitly requested but malformed slug is
+skipped exactly like an unimportable one and `discover` returns the healthy
+remainder. Search-path validation is the one check that runs before any
+loading and therefore raises from `discover` too. Both behaviors are pinned by
+`tests/test_discovery.py`; a caller that needs a malformed slug to be loud
+must call `load_provider`.
 Both paths leave `sys.path` exactly as they found it: entries inserted for the
 import are removed in a `finally` block, and the one tolerated exception there
 — a film that rewrote `sys.path` itself on import — is documented at the call

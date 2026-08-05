@@ -72,12 +72,25 @@ No pickling anywhere, so other languages can consume the format.
 - `SERIALIZATION_TAG` — the single reserved key (`__bond_type__`), published
   so docs, manuscript tokens, and downstream layers bind to the live value
   instead of repeating a string literal.
-- `SerializationError` — raised for non-string dict keys, unsupported payload
-  types, unknown tags, malformed container encodings, and missing fields.
+- `SerializationError` — raised for non-string dict keys, dicts carrying the
+  reserved key, unsupported payload types, dataclasses that are not exactly a
+  protocol type (including one whose `__name__` shadows one), unknown tags,
+  malformed container encodings, and missing fields.
 
-Encoding rules worth knowing before writing a film: `tuple` and `list` carry
-explicit tags so container types survive a round-trip exactly, and a payload
-dict must not itself use the reserved key.
+Encoding rules worth knowing before writing a film:
+
+- `tuple` and `list` carry explicit tags so container types survive a
+  round-trip exactly.
+- A payload dict must not itself use the reserved key, and this is **enforced
+  at encode time**: `to_json`/`to_dict` raise on such a dict. They previously
+  encoded it, and the decoder then read it back as a tuple, list, or protocol
+  object — a dict silently becoming something else, with `decoded == original`
+  quietly false.
+- The protocol-type check is on class **identity**. A subclass, or an
+  unrelated dataclass whose `__name__` shadows a protocol type, is rejected.
+  The check was previously a string-name comparison, so a name-shadowing class
+  encoded under the shadowed tag and decoded back as the real protocol type
+  with its extra fields dropped.
 
 ### `src/bond_api/discovery.py` — finding films
 
@@ -128,7 +141,7 @@ helper is pure and deterministic.
 | `validate_brief(brief)` | Wraps the above in a `BriefReport` (`.brief`, `.issues`, `.ok`). |
 | `plan_schema_issues(plan, expected_steps=None)` | Duplicate step names, non-string/blank param keys, non-JSON-serializable params, and — when `expected_steps` is given — an exact name-and-order match. |
 | `require_plan_schema(plan, expected_steps=None)` | The same checks, raising `ValueError` on any issue. |
-| `fingerprint(*parts)` | SHA-256 over the canonical JSON encoding of each part, NUL-separated. Deterministic across processes and platforms. |
+| `fingerprint(*parts)` | SHA-256 over the canonical JSON encoding of each part, NUL-separated. Pinned to literal golden digests and re-derived in a fresh interpreter (`tests/test_golden_determinism.py`); cross-platform stability is asserted only over the platforms the suite runs on. |
 | `hash_provenance(provenance)` | Fingerprint of all four provenance fields. |
 | `derive_provenance(package_version, seed, inputs, wall_time_s)` | Builds a `Provenance` whose `input_hash` follows from the inputs, so an outcome is auditable without re-running the film. |
 | `normalize_lessons(lessons)` | Strip, drop empties, dedupe; first occurrence wins, order preserved. |

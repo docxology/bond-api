@@ -11,7 +11,14 @@ The protocol makes determinism a contract, not a hope:
 - provenance hashing (`fingerprint`, `hash_provenance`, `derive_provenance`)
   uses the SHA-256 secure hash standard [@nist_fips180_4] over the canonical
   JSON encoding, so identical inputs yield identical fingerprints across
-  processes and platforms;
+  processes and platforms. What is *tested*, in
+  `tests/test_golden_determinism.py`: the wire text and four digests are
+  pinned to checked-in literals, and re-derived in a freshly spawned
+  interpreter under `PYTHONHASHSEED=random`. That binds the cross-process
+  claim directly and turns any encoding change into a red test. Platform
+  independence is bounded by the platforms the suite is run on — the literals
+  fail loudly on a platform that disagrees, but the suite cannot assert a
+  platform it has never executed;
 - tests use fixed inputs throughout; any future timing assertions must use
   bounds, not exact values, per `docs/testing_philosophy.md`.
 
@@ -48,3 +55,8 @@ Three checks keep this honest: the strict-mode script fails on any unresolved
 token; `tests/test_manuscript_variables.py` cross-references every manuscript
 token against the generator; and strict resolution refuses to report success
 over an empty section set, so the token gate cannot pass by scanning nothing.
+
+`data/claim_ledger.yaml` is the one place that deliberately restates
+code-derived values outside the token map. It is not self-certifying prose:
+`tests/test_claim_ledger.py` re-derives every row from the source the row
+cites and fails on a row with no verifier.

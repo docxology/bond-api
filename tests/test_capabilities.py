@@ -11,6 +11,8 @@ from __future__ import annotations
 from typing import Any
 
 import dataclasses
+import hashlib
+
 import pytest
 
 from bond_api.capabilities import (
@@ -236,7 +238,16 @@ def test_fingerprint_accepts_protocol_objects() -> None:
 
 
 def test_fingerprint_empty_parts_is_fixed() -> None:
-    assert fingerprint() == fingerprint()
+    """Pin the actual value, not ``fingerprint() == fingerprint()``.
+
+    The self-comparison this replaced held for any deterministic function and
+    could not fail. The golden digest below is SHA-256 of the empty byte
+    string — no parts means no bytes were fed to the digest — and is
+    re-derived from ``hashlib`` here rather than merely asserted, so a change
+    to the fingerprint construction fails the test.
+    """
+    assert fingerprint() == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    assert fingerprint() == hashlib.sha256(b"").hexdigest()
 
 
 def test_fingerprint_rejects_non_serializable_parts() -> None:

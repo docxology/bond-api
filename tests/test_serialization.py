@@ -7,6 +7,7 @@ lists, nested objects stay nested objects).
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from typing import Any
 
@@ -198,6 +199,69 @@ def test_unknown_tag_in_payload_dict_is_rejected() -> None:
     # A payload dict using the reserved key with an unknown type is malformed.
     with pytest.raises(SerializationError, match="unknown bond type"):
         from_json('{"payload": {"__bond_type__": "gadget", "items": []}}')
+
+
+def test_payload_dict_using_reserved_key_is_rejected_at_encode() -> None:
+    """A dict carrying the reserved key must never reach the wire.
+
+    Before this was enforced, ``Asset(payload={"__bond_type__": "Finding",
+    "label": "x", "detail": "y"})`` encoded happily and decoded back as a
+    ``Finding`` *object* — silent corruption that broke the advertised exact
+    round-trip without raising anything.
+    """
+    corrupting = {SERIALIZATION_TAG: "Finding", "label": "x", "detail": "y"}
+    with pytest.raises(SerializationError, match="reserved wire key"):
+        to_json(Asset(kind="k", name="n", payload=corrupting))
+    with pytest.raises(SerializationError, match="reserved wire key"):
+        to_dict(Asset(kind="k", name="n", payload=dict(corrupting)))
+    # Also for the container tags and for a nested position.
+    with pytest.raises(SerializationError, match="reserved wire key"):
+        to_json(Asset(kind="k", name="n", payload={SERIALIZATION_TAG: "tuple", "items": [1]}))
+    with pytest.raises(SerializationError, match="reserved wire key"):
+        to_json(Asset(kind="k", name="n", payload={"deep": [{SERIALIZATION_TAG: "list", "items": []}]}))
+
+
+def test_plain_payload_dicts_still_encode() -> None:
+    """The rejection is targeted: ordinary dicts are unaffected."""
+    asset = Asset(kind="k", name="n", payload={"bond_type": "not reserved", "__other__": 1})
+    assert from_json(to_json(asset)) == asset
+
+
+def test_name_shadowing_dataclass_is_rejected_not_flattened() -> None:
+    """The type check is identity-based, not a string-name comparison.
+
+    A dataclass whose ``__name__`` shadows a protocol type used to be accepted
+    and encoded under that tag; decoding then rebuilt the *real* protocol type
+    and silently dropped every extra field.
+    """
+
+    @dataclasses.dataclass(frozen=True)
+    class Impostor:
+        label: str
+        detail: str
+        extra: str = "dropped-on-decode"
+
+    Impostor.__name__ = "Finding"
+    with pytest.raises(SerializationError, match="shadows protocol type"):
+        to_json(Impostor(label="l", detail="d"))
+    with pytest.raises(SerializationError, match="shadows protocol type"):
+        to_json(Asset(kind="k", name="n", payload=Impostor(label="l", detail="d")))
+
+
+def test_protocol_subclass_is_rejected() -> None:
+    """Subclasses do not round-trip: they would lose their own fields."""
+
+    @dataclasses.dataclass(frozen=True)
+    class ExtendedFinding(Finding):
+        weight: int = 1
+
+    with pytest.raises(SerializationError, match="cannot serialize"):
+        to_json(ExtendedFinding(label="l", detail="d", weight=3))
+
+    # ...including when it shadows the base class name.
+    ExtendedFinding.__name__ = "Finding"
+    with pytest.raises(SerializationError, match="shadows protocol type"):
+        to_json(ExtendedFinding(label="l", detail="d", weight=3))
 
 
 def test_serialization_tag_constant_is_the_live_wire_key() -> None:
