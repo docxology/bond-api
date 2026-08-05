@@ -6,6 +6,7 @@ root — real execution, real files, no mocks.
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 import sys
@@ -97,8 +98,35 @@ def test_generate_manuscript_variables_strict_rejects_unresolved(tmp_path: Path)
     assert "unresolved manuscript tokens" in result.stderr
 
 
-@pytest.mark.parametrize("script", ["scripts/00_preflight.py", "scripts/demo_mission.py"])
-def test_scripts_are_python_files(script: str) -> None:
-    """Guard against accidental binary/exemplar leftovers in the scripts dir."""
-    source = (ROOT / script).read_text(encoding="utf-8")
-    assert "def main()" in source
+SCRIPTS = sorted(path.name for path in (ROOT / "scripts").glob("*.py") if path.name != "__init__.py")
+
+
+def test_script_inventory_is_not_empty() -> None:
+    """Positive control: the thin-orchestrator gate below must scan real files."""
+    assert SCRIPTS == ["00_preflight.py", "demo_mission.py", "z_generate_manuscript_variables.py"]
+
+
+@pytest.mark.parametrize("script", SCRIPTS)
+def test_scripts_are_thin_orchestrators(script: str) -> None:
+    """Every script must delegate to ``bond_api`` and hold no business logic.
+
+    Parsed with :mod:`ast` rather than grepped for a ``def main()`` substring:
+    a substring check passes for a script that has grown an entire analysis
+    engine underneath its ``main``. The real invariants are (a) the only
+    top-level callables are ``main`` plus private helpers, and (b) the script
+    imports the package it is supposed to be orchestrating.
+    """
+    tree = ast.parse((ROOT / "scripts" / script).read_text(encoding="utf-8"))
+
+    functions = [node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    assert "main" in functions, f"{script} has no main()"
+    public = [name for name in functions if name != "main" and not name.startswith("_")]
+    assert public == [], f"{script} defines public helpers {public}: move logic into src/bond_api/"
+
+    classes = [node.name for node in tree.body if isinstance(node, ast.ClassDef)]
+    assert classes == [], f"{script} defines classes {classes}: move them into src/bond_api/"
+
+    imported = {
+        node.module.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.ImportFrom) and node.module
+    }
+    assert "bond_api" in imported, f"{script} does not delegate to bond_api"

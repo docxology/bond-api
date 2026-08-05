@@ -54,9 +54,14 @@ testing:
   max_infra_test_failures: 0
   max_project_test_failures: 0
 
-# Protocol parameters — read by `src/bond_api/` and `scripts/demo_mission.py`.
+# Protocol parameters — read by `src/bond_api/manuscript_variables.py`.
+# `serialization_tag` is the declared value; the live value comes from
+# `bond_api.serialization.SERIALIZATION_TAG` and the two are pinned together by
+# `tests/test_manuscript_variables.py::test_config_serialization_tag_matches_code`.
 protocol:
   identity: "BOND-API"
   codename: "THE PROTOCOL"
   reference_film: "sable"
   serialization_tag: "__bond_type__"
+  # Number of BOND film packages that implement this contract (suite roster).
+  film_count: 27

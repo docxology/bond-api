@@ -268,6 +268,13 @@ def run_mission(provider: MissionProvider, request: ReconRequest) -> Debrief:
     Deterministic by construction: the flow itself makes no random draws and
     performs no I/O; everything else is up to the film, which the protocol
     requires to be deterministic too.
+
+    The recon stage is executed for its contract obligations (a film must be
+    able to answer a :class:`ReconRequest`) but its :class:`ReconReport` is
+    intentionally not threaded into ``plan``: the frozen contract declares
+    ``plan(brief) -> MissionPlan``, so a film that needs recon evidence while
+    planning must carry it itself. Callers that want the report drive the five
+    stages directly, as ``scripts/demo_mission.py`` does.
     """
     brief = provider.brief()
     provider.recon(request)

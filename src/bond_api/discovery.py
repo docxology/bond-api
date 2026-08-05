@@ -136,11 +136,15 @@ def load_provider(
             raise DiscoveryError(f"provider discovered under {slug!r} declares film {declared!r}")
         return provider
     finally:
+        # Restore ``sys.path`` exactly as we found it. A film module that
+        # rewrites ``sys.path`` on import can remove our entry first; that is
+        # the film's business, not a discovery failure, so the missing-entry
+        # case is tolerated here and nowhere else.
         for entry in inserted:
             try:
                 sys.path.remove(entry)
             except ValueError:
-                pass
+                continue
 
 
 def discover(

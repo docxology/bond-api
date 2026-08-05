@@ -12,15 +12,16 @@ constraint for agents working in this package, not a suggestion.
 | `README.md` | Quick navigation index |
 | `AGENTS.md` | This index |
 | `agent_instructions.md` | Behavioral constraints (read-first priority) |
-| `architecture.md` | Layer boundaries and key flows |
-| `testing_philosophy.md` | Zero-mock policy, coverage mechanics, test inventory |
+| `architecture.md` | Module-by-module architecture, layer boundaries, key flows, and how the reference film implements the contract |
+| `testing_philosophy.md` | Zero-mock policy, coverage mechanics, non-vacuous gate discipline, test inventory |
 
 ## Key Conventions
 
 **Read-first protocol**: agents must read `agent_instructions.md` before
 modifying any project file. The most common agent errors are: introducing
-mocks (Rule 4), moving logic into scripts (Rule 3), and silently editing the
-frozen protocol (Rule 1).
+mocks (Rule 4), moving logic into scripts (Rule 3), silently editing the
+frozen protocol (Rule 1), hand-authoring a metric that should be a token
+(Rule 6), and adding a check that cannot fail (Rule 7).
 
 **Architecture isolation**: `src/bond_api/` is pure logic (stdlib +
 `pyyaml` only); `scripts/` is thin glue; `tests/` is zero-mock; `films/` holds
@@ -43,5 +44,9 @@ package implements. Changes are versioned migrations, never silent edits.
 | `tests/` (all `test_*.py`) | REQUIRED | 90% coverage gate on `src/` |
 | `tests/conftest.py` | REQUIRED | Adds `src/` + `films/` to `sys.path`; without it discovery tests cannot collect |
 | `films/sable/mission.py` | REQUIRED | Reference film; discovery + demo + smoke tests depend on it |
-| `scripts/00_preflight.py`, `demo_mission.py`, `z_generate_manuscript_variables.py` | REQUIRED | Subprocess smoke tests; token hydration pipeline |
-| `manuscript/config.yaml` | REQUIRED | Token source; `load_manuscript_config()` |
+| `scripts/00_preflight.py`, `demo_mission.py`, `z_generate_manuscript_variables.py` | REQUIRED | Subprocess smoke tests; `ast` thin-orchestrator gate; token hydration pipeline |
+| `manuscript/config.yaml` | REQUIRED | Token source; `load_manuscript_config()`; `serialization_tag` pinned to the live constant by test |
+| `pyproject.toml` `[tool.coverage.report] fail_under` | REQUIRED | The enforced floor **and** the source of the `BOND_COVERAGE_FLOOR` token |
+| `manuscript/references.bib` | REQUIRED | Real, checkable sources only — a citation you cannot verify is removed, never invented |
+| `docs/*.md`, `README.md`, `AGENTS.md`, `TODO.md` | REQUIRED | Must describe the package as it is; drift is a defect, not cosmetics |
+| `STANDALONE.md`, `CITATION.cff`, `.zenodo.json`, `codemeta.json` | AESTHETIC (until publication) | Publication sidecars; no gate consumes them today |

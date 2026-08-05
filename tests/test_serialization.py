@@ -25,7 +25,14 @@ from bond_api.protocol import (
     ReconRequest,
     Step,
 )
-from bond_api.serialization import SerializationError, from_dict, from_json, to_dict, to_json
+from bond_api.serialization import (
+    SERIALIZATION_TAG,
+    SerializationError,
+    from_dict,
+    from_json,
+    to_dict,
+    to_json,
+)
 
 
 def make_provenance(**overrides: Any) -> Provenance:
@@ -45,7 +52,11 @@ def make_outcome(**overrides: Any) -> MissionOutcome:
 
 
 ROUND_TRIP_CASES: list[Any] = [
-    Asset(kind="manifest", name="contract", payload={"version": "0.1.0", "flags": [1, 2, 3], "nested": {"a": None, "b": True}}),
+    Asset(
+        kind="manifest",
+        name="contract",
+        payload={"version": "0.1.0", "flags": [1, 2, 3], "nested": {"a": None, "b": True}},
+    ),
     Asset(kind="note", name="empty", payload=None),
     Constraint(kind="determinism", detail="no draws"),
     Finding(label="goal", detail="survey"),
@@ -187,3 +198,11 @@ def test_unknown_tag_in_payload_dict_is_rejected() -> None:
     # A payload dict using the reserved key with an unknown type is malformed.
     with pytest.raises(SerializationError, match="unknown bond type"):
         from_json('{"payload": {"__bond_type__": "gadget", "items": []}}')
+
+
+def test_serialization_tag_constant_is_the_live_wire_key() -> None:
+    """The published tag must be the key actually emitted, not a copy of it."""
+    encoded = to_dict(ReconRequest(goal="tag"))
+    assert SERIALIZATION_TAG in encoded
+    assert encoded[SERIALIZATION_TAG] == "ReconRequest"
+    assert SERIALIZATION_TAG in to_json(ReconRequest(goal="tag"))

@@ -28,7 +28,23 @@ The protocol makes determinism a contract, not a hope:
 
 Every token in `manuscript/*.md` resolves through
 `src/bond_api/manuscript_variables.py::generate_variables()`, which reads
-`manuscript/config.yaml` and the live protocol surface. The strict-mode script
-fails on any unresolved token, and `tests/test_manuscript_variables.py`
-cross-references every manuscript token against the generator, so prose cannot
-drift from the code.
+its sources of truth — live code, configuration, and gate declarations —
+and never a hand-typed value:
+
+| Token group | Source of truth |
+|---|---|
+| Identity, surface inventory, capability list | the live package (`protocol_surface()`, `CAPABILITY_NAMES`) |
+| Version, title, subtitle, reference film, film count | `manuscript/config.yaml` |
+| Wire-format tag | `bond_api.serialization.SERIALIZATION_TAG` |
+| Coverage floor | the `fail_under` gate in `pyproject.toml` |
+| Python version, generation timestamp | the running interpreter |
+
+Deriving the coverage floor from `pyproject.toml` rather than from prose or
+config means the manuscript quotes the gate that actually runs; deriving the
+wire tag from the module means renaming the tag breaks the build rather than
+the documentation.
+
+Three checks keep this honest: the strict-mode script fails on any unresolved
+token; `tests/test_manuscript_variables.py` cross-references every manuscript
+token against the generator; and strict resolution refuses to report success
+over an empty section set, so the token gate cannot pass by scanning nothing.

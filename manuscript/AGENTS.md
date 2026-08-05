@@ -15,15 +15,15 @@ the section modification workflow.
 
 | File / Pattern | Role | Tokens |
 |---|---|---|
-| `00_abstract.md` | Abstract; protocol identity and surface summary | `BOND_IDENTITY`, `BOND_CODENAME`, `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_VERSION` |
-| `01_introduction.md` | Why the protocol exists; package contents; reader's guide | `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS` |
-| `02_methodology.md` | Lifecycle, frozen dataclasses, provider contract, discovery, serialization, registries, capability helpers | None |
-| `03_results.md` | Protocol surface + conformance evidence | `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES` |
-| `04_conclusion.md` | What Phase 1 delivers; freeze statement | `BOND_NUM_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_VERSION` |
-| `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `PYTHON_VERSION`, `GENERATION_TIMESTAMP` |
-| `06_reproducibility.md` | Determinism policy, artifact inventory, token hydration | None |
-| `07_scope_and_related_work.md` | Out-of-scope, design relationships, related standards | None |
-| `99_references.md` | Standards and repository references | None |
+| `00_abstract.md` | Abstract; protocol identity, surface summary, suite scale | `BOND_IDENTITY`, `BOND_CODENAME`, `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS`, `BOND_SERIALIZATION_TAG`, `BOND_COVERAGE_FLOOR`, `BOND_VERSION` |
+| `01_introduction.md` | Why the protocol exists; package contents; reader's guide | `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_FILMS`, `BOND_REFERENCE_FILM` |
+| `02_methodology.md` | Lifecycle, frozen dataclasses, provider contract, discovery, discovery failure semantics, serialization, registries, capability helpers | `BOND_NUM_FILMS`, `BOND_SERIALIZATION_TAG` |
+| `03_results.md` | Protocol surface, conformance evidence, gate integrity | `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_COVERAGE_FLOOR`, `BOND_SERIALIZATION_TAG`, `BOND_REFERENCE_FILM` |
+| `04_conclusion.md` | What the version delivers; what the freeze buys; freeze statement | `BOND_VERSION`, `BOND_NUM_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_SERIALIZATION_TAG`, `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` |
+| `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `BOND_REFERENCE_FILM`, `BOND_COVERAGE_FLOOR`, `PYTHON_VERSION`, `GENERATION_TIMESTAMP` |
+| `06_reproducibility.md` | Determinism policy, artifact inventory, token hydration sources | None |
+| `07_scope_and_related_work.md` | Out-of-scope, design relationships, related standards | `BOND_NUM_FILMS`, `BOND_REFERENCE_FILM` |
+| `99_references.md` | Standards and repository references (real, checkable sources only) | `BOND_NUM_DATACLASSES`, `BOND_SERIALIZATION_TAG` |
 | `config.yaml` | Paper metadata + `protocol:` parameters | — |
 | `config.yaml.example` | Reference copy for new projects | — |
 | `preamble.md` | LaTeX injections shared by PDF output | — |

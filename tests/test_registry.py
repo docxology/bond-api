@@ -11,7 +11,6 @@ from typing import Any
 import pytest
 
 from bond_api.protocol import (
-    Asset,
     Debrief,
     Finding,
     MissionBrief,

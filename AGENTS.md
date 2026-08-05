@@ -22,7 +22,12 @@ suite at `projects/working/bond/bond-api/`.
 7. **Quality gates.** `uv run pytest tests/ --cov=src --cov-fail-under=90`
    plus `uv run ruff check src/ scripts/ films/` and
    `uv run mypy src/ scripts/ films/` must all pass.
-8. **Manuscript variables are injected.** `manuscript/*.md` tokens resolve
+8. **A gate must be able to fail.** Any check added here needs an input that
+   makes it fail, supplied in a test: inventory scans assert a non-empty scan
+   set, always-satisfied validity checks are extracted into callables that a
+   test can feed invalid input, and structural claims about code are made with
+   `ast`, not substring greps. See `docs/testing_philosophy.md`.
+9. **Manuscript variables are injected.** `manuscript/*.md` tokens resolve
    through `src/bond_api/manuscript_variables.py::generate_variables()` from
    `manuscript/config.yaml` + the live protocol surface — never hand-author
    metrics in prose. `scripts/z_generate_manuscript_variables.py` is strict by
@@ -37,7 +42,7 @@ suite at `projects/working/bond/bond-api/`.
 | `src/bond_api/discovery.py` | Slug-based discovery on `sys.path` — pure (importlib) |
 | `src/bond_api/serialization.py` | Tagged JSON round-trips — pure |
 | `src/bond_api/capabilities.py` | Soft brief validation, plan schema checks, provenance hashing, debrief normalization — pure (stdlib + `serialization`) |
-| `src/bond_api/manuscript_variables.py` | Reads `manuscript/config.yaml` (pyyaml) |
+| `src/bond_api/manuscript_variables.py` | Reads `manuscript/config.yaml` (pyyaml) + the `fail_under` gate in `pyproject.toml`; owns `require_surface` and strict tree resolution |
 | `films/<slug>/mission.py` | Film implementations of the contract (external) |
 | `scripts/` | Thin orchestrators; may add paths and call `src/` only |
 | `tests/` | Zero-mock; exercises `src/` and real films |
@@ -50,7 +55,7 @@ Nothing imports upward.
 ```mermaid
 flowchart TB
     P[projects/working/bond/bond-api]
-    P --> SRC[src/bond_api<br/>protocol · discovery · registry ·<br/>serialization · manuscript_variables]
+    P --> SRC[src/bond_api<br/>protocol · serialization · discovery ·<br/>registry · capabilities · manuscript_variables]
     P --> F[films/sable<br/>reference film · mission.py]
     P --> SC[scripts<br/>00_preflight · demo_mission · z_generate_manuscript_variables]
     P --> T[tests]
@@ -69,10 +74,29 @@ Before modifying this project, read in order:
    `scripts/`.
 3. `docs/testing_philosophy.md` — zero-mock rules before writing tests.
 
+## Build / test / verify
+
+```bash
+# Install (dev extras: pytest, pytest-cov, ruff, mypy, types-PyYAML)
+uv sync --extra dev
+
+# Run one test
+uv run pytest tests/test_capabilities.py::test_fingerprint_is_deterministic -v
+
+# Run the package end-to-end without the test suite
+uv run python scripts/00_preflight.py
+uv run python scripts/demo_mission.py
+uv run python scripts/z_generate_manuscript_variables.py
+```
+
+There is no build step and no rendering step inside this package: the PDF is
+produced by the monorepo `infrastructure.rendering` pipeline from the resolved
+sections this package writes to `output/manuscript/`.
+
 ## Verification checklist (before "done")
 
 ```bash
-# 1. Tests + coverage gate (≥90% line + branch on src/)
+# 1. Tests + coverage gate (line + branch on src/; floor from pyproject fail_under)
 uv run pytest tests/ --cov=src --cov-fail-under=90
 
 # 2. No mocks in tests/
@@ -84,18 +108,29 @@ grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
 # 4. No leftover exemplar scaffold strings (bracket split keeps this doc from matching itself)
 rg -n "template[_]code_project" . || echo "Clean"
 
-# 5. Code quality
-uv run ruff check src/ scripts/ films/
+# 5. Code quality (lint, format, types)
+uv run ruff check src/ scripts/ films/ tests/
+uv run ruff format --check src/ scripts/ films/ tests/
 uv run mypy src/ scripts/ films/
 
-# 6. git status clean after commit(s)
+# 6. Manuscript tokens hydrate strictly (an unresolved token exits non-zero)
+uv run python scripts/z_generate_manuscript_variables.py
+
+# 7. git status clean after commit(s)
 git status
 ```
 
+Steps 1, 5, and 6 are the gates that can actually fail on a bad change; run
+all three before claiming a change is done, and read the output rather than
+the exit code alone.
+
 ## See also
 
-- [`README.md`](README.md) — human quickstart · [`TODO.md`](TODO.md) — backlog
-  and integration points
-- Live test count + measured coverage:
-  [`docs/_generated/COUNTS.md`](../../../docs/_generated/COUNTS.md)
-  (regenerated, never hardcoded here)
+- [`README.md`](README.md) — human quickstart, module map, and the
+  `MissionProvider` surface · [`TODO.md`](TODO.md) — backlog and integration
+  points · [`STANDALONE.md`](STANDALONE.md) — publication/lift guide
+- [`docs/`](docs/) — `agent_instructions.md` (seven rules + token map),
+  `architecture.md` (module-by-module), `testing_philosophy.md` (zero-mock and
+  non-vacuous gates)
+- Test counts and measured coverage are never written into these documents.
+  They come from the run: `uv run pytest tests/ --cov=src`.

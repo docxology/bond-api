@@ -22,13 +22,23 @@ import yaml
 
 from bond_api.capabilities import CAPABILITY_NAMES
 from bond_api.protocol import CODENAME, IDENTITY, protocol_surface
+from bond_api.serialization import SERIALIZATION_TAG
 
-__all__ = ["generate_variables", "load_manuscript_config", "resolve_manuscript_tree"]
+__all__ = [
+    "generate_variables",
+    "load_manuscript_config",
+    "read_coverage_floor",
+    "require_surface",
+    "resolve_manuscript_tree",
+]
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = PACKAGE_ROOT / "manuscript" / "config.yaml"
+DEFAULT_PYPROJECT_PATH = PACKAGE_ROOT / "pyproject.toml"
 
 _TOKEN_RE = re.compile(r"\{\{[A-Z0-9_]+\}\}")
+#: Matches the enforced coverage floor declared in ``[tool.coverage.report]``.
+_FAIL_UNDER_RE = re.compile(r"^\s*fail_under\s*=\s*(\d+)\s*$", re.MULTILINE)
 
 
 def load_manuscript_config(config_path: str | Path | None = None) -> dict[str, Any]:
@@ -43,15 +53,46 @@ def load_manuscript_config(config_path: str | Path | None = None) -> dict[str, A
     return data
 
 
+def read_coverage_floor(pyproject_path: str | Path | None = None) -> int:
+    """Read the enforced coverage floor from ``pyproject.toml``.
+
+    The floor is parsed from the gate declaration itself
+    (``[tool.coverage.report] fail_under``) rather than restated in prose or
+    config, so the manuscript can never quote a floor the suite does not
+    enforce. A missing declaration is an error, not a default: silently
+    substituting a number would be exactly the drift this token prevents.
+    """
+    path = Path(pyproject_path) if pyproject_path is not None else DEFAULT_PYPROJECT_PATH
+    if not path.is_file():
+        raise FileNotFoundError(f"pyproject.toml not found: {path}")
+    match = _FAIL_UNDER_RE.search(path.read_text(encoding="utf-8"))
+    if match is None:
+        raise ValueError(f"no 'fail_under' coverage gate declared in {path}")
+    return int(match.group(1))
+
+
+def require_surface(surface: dict[str, Any]) -> None:
+    """Fail when the frozen protocol surface exposes no dataclasses.
+
+    Extracted from :func:`generate_variables` so the gate has a positive
+    control: it can be called with a genuinely empty surface in a test rather
+    than being green purely because the real package always populates one.
+    """
+    if not surface.get("dataclasses"):
+        raise ValueError("protocol surface is empty — bond_api failed to expose its dataclasses")
+
+
 def generate_variables(
     *,
     config_path: str | Path | None = None,
+    pyproject_path: str | Path | None = None,
     require_outputs: bool = True,
 ) -> dict[str, str]:
     """Compute the ``{{TOKEN}}`` → value mapping for the manuscript.
 
     Args:
         config_path: Override for ``manuscript/config.yaml``.
+        pyproject_path: Override for ``pyproject.toml`` (coverage-floor token).
         require_outputs: When True (default), verify the protocol surface is
             non-empty — the strict-mode gate that replaced the exemplar's
             analysis-CSV requirement.
@@ -60,9 +101,12 @@ def generate_variables(
     paper = config.get("paper", {})
     if not isinstance(paper, dict):
         raise ValueError("manuscript config 'paper' section must be a mapping")
+    protocol_config = config.get("protocol", {})
+    if not isinstance(protocol_config, dict):
+        raise ValueError("manuscript config 'protocol' section must be a mapping")
     surface = protocol_surface()
-    if require_outputs and not surface["dataclasses"]:
-        raise ValueError("protocol surface is empty — bond_api failed to expose its dataclasses")
+    if require_outputs:
+        require_surface(surface)
     return {
         "BOND_IDENTITY": IDENTITY,
         "BOND_CODENAME": CODENAME,
@@ -75,6 +119,10 @@ def generate_variables(
         "BOND_PROVIDER_METHODS": ", ".join(surface["provider_methods"]),
         "BOND_NUM_CAPABILITIES": str(len(CAPABILITY_NAMES)),
         "BOND_CAPABILITIES": ", ".join(CAPABILITY_NAMES),
+        "BOND_SERIALIZATION_TAG": SERIALIZATION_TAG,
+        "BOND_REFERENCE_FILM": str(protocol_config.get("reference_film", "")),
+        "BOND_NUM_FILMS": str(protocol_config.get("film_count", "")),
+        "BOND_COVERAGE_FLOOR": str(read_coverage_floor(pyproject_path)),
         "PYTHON_VERSION": platform.python_version(),
         "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
@@ -91,7 +139,10 @@ def resolve_manuscript_tree(
 
     Only ``NN_*.md`` section files are copied (not sidecars such as
     ``SYNTAX.md``). In strict mode any leftover ``{{TOKEN}}`` fails the
-    resolution so the manuscript can never render with raw braces.
+    resolution so the manuscript can never render with raw braces, and a
+    manuscript directory containing **no** sections is an error rather than a
+    silent success: an empty scan set would make the unresolved-token gate
+    vacuous (nothing scanned always passes).
 
     Returns the output directory and the sorted list of resolved file names.
     """
@@ -108,4 +159,6 @@ def resolve_manuscript_tree(
         output_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / source.name).write_text(text, encoding="utf-8")
         resolved.append(source.name)
+    if not resolved and strict:
+        raise ValueError(f"no manuscript sections (NN_*.md) found in {manuscript_dir} — nothing to resolve")
     return output_dir, resolved

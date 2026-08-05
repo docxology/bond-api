@@ -2,8 +2,8 @@
 
 ## The mission lifecycle
 
-A mission is a deterministic five-stage flow. Each stage has one input, one
-output, and no hidden state:
+A mission is a deterministic {{BOND_NUM_PROVIDER_METHODS}}-stage flow. Each
+stage has one input, one output, and no hidden state:
 
 | Stage | Input | Output |
 |---|---|---|
@@ -13,9 +13,9 @@ output, and no hidden state:
 | `execute` | `MissionPlan` | `MissionOutcome` |
 | `debrief` | `MissionOutcome` | `Debrief` |
 
-The orchestrator helper `run_mission(provider, request)` composes the five
-stages in exactly this order and returns the final `Debrief`. Because the
-stages are pure functions of their inputs, coordinators can re-run, cache, or
+The orchestrator helper `run_mission(provider, request)` composes the
+{{BOND_NUM_PROVIDER_METHODS}} stages in exactly this order and returns the
+final `Debrief`. Because the stages are pure functions of their inputs, coordinators can re-run, cache, or
 serialize any stage boundary without special-casing a film.
 
 ## Frozen dataclasses
@@ -48,11 +48,32 @@ autodetects candidate slugs — top-level directories containing `mission.py` �
 or takes an explicit slug list, loading every discoverable provider and
 skipping broken ones so one bad film never hides the rest.
 
+### Failure semantics
+
+Discovery is deliberately strict in one direction and tolerant in the other,
+because the two callers want opposite things:
+
+| Situation | `load_provider` (single film) | `discover` (bulk) |
+|---|---|---|
+| Slug is not an importable module name | `DiscoveryError` | `DiscoveryError` (path/slug validation precedes loading) |
+| Package missing, provider absent, constructor raises | `DiscoveryError` | slug skipped |
+| Provider fails the structural protocol check | `DiscoveryError` | slug skipped |
+| Provider declares a film different from its slug | `DiscoveryError` (identity mismatch) | slug skipped |
+| Search-path entry exists but cannot be listed | not reached | entry skipped |
+
+A coordinator asking for one named film wants a loud failure; a coordinator
+sweeping the {{BOND_NUM_FILMS}}-film fleet wants every healthy film to load
+regardless of a sick one.
+Both paths leave `sys.path` exactly as they found it: entries inserted for the
+import are removed in a `finally` block, and the one tolerated exception there
+— a film that rewrote `sys.path` itself on import — is documented at the call
+site rather than silently swallowed.
+
 ## Serialization
 
 Protocol objects serialize to plain JSON via `to_json` / `from_json`. The
-wire format is tagged (`{"__bond_type__": "<ClassName>", ...fields}`) so the
-exact type reconstructs on decode; tuples and lists are explicitly
+wire format is tagged (`{"{{BOND_SERIALIZATION_TAG}}": "<ClassName>",
+...fields}`) so the exact type reconstructs on decode; tuples and lists are explicitly
 distinguished; output is key-sorted with fixed indentation so identical
 objects produce byte-identical text. No pickling is used anywhere.
 

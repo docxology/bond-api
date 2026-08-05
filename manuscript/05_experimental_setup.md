@@ -10,7 +10,7 @@
 | `src/bond_api/serialization.py` | Deterministic JSON round-trips |
 | `src/bond_api/capabilities.py` | Soft brief validation, plan schema checks, provenance hashing, debrief normalization |
 | `src/bond_api/manuscript_variables.py` | Token hydration from `config.yaml` |
-| `films/sable/mission.py` | Reference film implementing the contract |
+| `films/{{BOND_REFERENCE_FILM}}/mission.py` | Reference film implementing the contract |
 | `scripts/` | Thin orchestrators (preflight, demo mission, token hydration) |
 | `tests/` | Zero-mock test suite |
 
@@ -32,7 +32,7 @@ The current version is {{BOND_VERSION}}.
 
 ```bash
 cd bond-api
-uv run pytest tests/ --cov=src --cov-fail-under=90
+uv run pytest tests/ --cov=src --cov-fail-under={{BOND_COVERAGE_FLOOR}}
 uv run python scripts/00_preflight.py
 uv run python scripts/demo_mission.py
 uv run python scripts/z_generate_manuscript_variables.py

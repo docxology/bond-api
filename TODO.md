@@ -1,61 +1,85 @@
 # bond-api TODO
 
 Forward-only backlog for BOND-API, the frozen mission protocol contract
-(Layer 1 of the BOND suite).
+(Layer 1 of the BOND suite, codename *THE PROTOCOL*). Items are removed when
+done — this file is not a changelog.
 
-## Status — Phase 4 (deep improvement)
+## Done (do not re-open)
 
-Delivered: the frozen protocol surface (11 dataclasses + `MissionProvider`
-contract) plus capability helpers layered on top — soft `MissionBrief`
-validation (`brief_issues` / `validate_brief`), plan-step schema checks
-(`plan_schema_issues` / `require_plan_schema`), deterministic provenance
-hashing (`fingerprint` / `hash_provenance` / `derive_provenance`, SHA-256
-over canonical JSON), and debrief normalization (`normalize_lessons` /
-`normalize_debrief`). Every phase-1 type, field, and CLI is untouched and
-backward compatible; the reference film (SABLE) and all downstream consumers
-keep working unchanged.
+The protocol freeze, serialization, discovery, registries, the capability
+helpers, the reference film, the manuscript, and the documentation set are all
+delivered and verified. Nothing in this section needs work; it is listed only
+so a future agent does not redo it:
 
-## Current validation evidence
+- 11 frozen dataclasses + `MissionProvider` + `run_mission` + `protocol_surface`
+- tagged deterministic JSON (`to_json`/`from_json`, published `SERIALIZATION_TAG`)
+- strict `load_provider` and tolerant `discover`, with `sys.path` restoration
+- `GadgetRegistry` and `MissionRegistry`
+- capability helpers: brief validation, plan-schema checks, provenance
+  fingerprinting, debrief normalization
+- manuscript sections 00–07 + 99, all metrics token-injected
+- `docs/` set: README, AGENTS, agent_instructions, architecture,
+  testing_philosophy
 
-- Tests + coverage gate: `uv run pytest tests/ --cov=src --cov-fail-under=90`
-  (≥90% line + branch on `src/`; live numbers →
-  [`docs/_generated/COUNTS.md`](../../../docs/_generated/COUNTS.md))
-- Code quality: `uv run ruff check src/ scripts/ films/` and
-  `uv run mypy src/ scripts/ films/` both pass clean
-- No mocks: `grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/`
-- Manuscript token gate: `uv run python scripts/z_generate_manuscript_variables.py`
-  (strict; unresolved `{{TOKEN}}` fails) + live cross-reference in
-  `tests/test_manuscript_variables.py`
-- Determinism: reference film fixed seed, `to_json` byte-deterministic
+## Open work
 
-## Integration points (do not stall — build pure first)
+### 1. Adopt bond-utilities when it lands (blocked, external)
 
-- **bond-utilities** — declared dependency, but still the raw scaffold as of
-  Phase 1. BOND-API currently depends only on the stdlib + `pyyaml`. When a
-  real utilities package lands (hashing, slug helpers, shared exceptions),
-  adopt it here and update this entry.
-- **bond-coordinator / bond-orchestrator / bond-cli** — consume
-  `discover()` + `MissionRegistry` and `to_json`/`from_json`; no film
-  internals.
-- **Film packages** — implement `mission.MissionProvider` per
-  `films/sable/mission.py`; discoverable by slug on `sys.path`.
+BOND-API declares it as a suite dependency but does not import it: as of now
+the package depends only on the stdlib plus `pyyaml`. When a real utilities
+package ships hashing, slug helpers, and shared exception types, replace the
+local equivalents (`capabilities.fingerprint`, `discovery._SLUG_RE`,
+`DiscoveryError`/`SerializationError` base) and delete the duplication. Do not
+pre-emptively restructure for a package that does not exist yet.
 
-## Known gaps and constraints
+### 2. Schema versioning for the wire format (deferred, needs a trigger)
 
-- `sys.modules` caches slug imports; hosting two packages under the same slug
-  in different locations requires distinct slugs (documented in
+The JSON encoding carries a type tag but no schema version. Adding one is a
+wire-format migration and should happen the first time a field is added to any
+protocol dataclass — not before, since an unused version field is one more
+thing to keep honest. Design note for that day: version belongs alongside
+`SERIALIZATION_TAG` in the envelope, and `from_dict` must accept an unversioned
+document as version 1.
+
+### 3. Downstream conformance harness (wanted, unblocked)
+
+Films are verified today by one reference film plus in-test scripted
+providers. A reusable conformance harness — "given any provider, assert it
+satisfies the contract, is deterministic across two runs, and round-trips
+every artifact" — would let each of the 27 film packages import a single
+function instead of re-writing the same assertions. Natural home:
+`src/bond_api/conformance.py`, additive, no contract change.
+
+### 4. Provenance chaining (idea, unscoped)
+
+`fingerprint` already produces stable audit hashes. Chaining them
+(outcome N's provenance includes the fingerprint of outcome N-1) would give
+the orchestrator a tamper-evident mission log. Needs a decision from
+bond-orchestrator about who owns the chain tip before any code is written —
+an append-only chain whose tip nobody seals proves nothing.
+
+## Known gaps and constraints (accepted, not bugs)
+
+- `sys.modules` caches slug imports, so hosting two packages under the same
+  slug in different locations requires distinct slugs (documented in
   `src/bond_api/discovery.py`).
-- Protocol objects carrying mutable payloads (e.g. dict in `Asset.payload`)
+- Protocol objects carrying mutable payloads (e.g. a dict in `Asset.payload`)
   are unhashable — value equality, not dict-key semantics (documented in
-  `src/bond_api/protocol.py` and `manuscript/02_methodology.md`).
-- `docs/_generated/COUNTS.md` lives at the monorepo root (outside this
-  package) and is regenerated by root tooling — do not hand-edit.
+  `protocol.py`, `manuscript/02_methodology.md`, and `docs/architecture.md`).
+- `run_mission` executes `recon` but does not thread the report into `plan`;
+  the frozen signature is `plan(brief)`. Callers needing the report drive the
+  five stages directly. Documented in `protocol.py` — do not "fix" it by
+  changing the flow.
 - Manuscript PDF rendering depends on the monorepo `infrastructure.rendering`
-  pipeline; the package itself ships token hydration and validation only.
+  pipeline; this package ships token hydration and validation only.
+- `docs/_generated/COUNTS.md` lives at the monorepo root, outside this
+  package, and is regenerated by root tooling — do not hand-edit it, and do
+  not copy figures from it into this package's prose.
 
-## Ordered improvement ladder
+## Standing rules for whoever picks this up
 
-1. Preserve the frozen protocol — any change is a versioned migration.
-2. When bond-utilities lands, add shared helpers and drop duplication.
-3. Add schema-versioning to the serialization tag if the wire format evolves.
-4. Refresh generated docs after any public-surface change.
+1. Preserve the freeze. Additive changes only; anything else is a versioned
+   migration with the old surface kept importable.
+2. Never hand-author a metric in the manuscript — add a token.
+3. Never add a check without an input that makes it fail.
+4. Re-run the full verification checklist in `AGENTS.md` before claiming done.

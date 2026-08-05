@@ -47,6 +47,7 @@ from bond_api.protocol import (
 )
 from bond_api.registry import GadgetRegistry, MissionRegistry
 from bond_api.serialization import (
+    SERIALIZATION_TAG,
     SerializationError,
     from_dict,
     from_json,
@@ -89,6 +90,7 @@ __all__ = [
     "GadgetRegistry",
     "MissionRegistry",
     # Serialization
+    "SERIALIZATION_TAG",
     "SerializationError",
     "from_dict",
     "from_json",

@@ -6,6 +6,7 @@ Unique slugs per test keep ``sys.modules`` isolation deterministic.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,9 @@ _IMPORTS = (
     "MissionOutcome, MissionPlan, Provenance, ReconReport, ReconRequest, Step)\n"
 )
 
-_UNBOUND_PROVIDER = _IMPORTS + '''
+_UNBOUND_PROVIDER = (
+    _IMPORTS
+    + '''
 class MissionProvider:
     """Deliberately declares no film attribute; discovery must bind it."""
 
@@ -43,8 +46,11 @@ class MissionProvider:
     def debrief(self, outcome: MissionOutcome) -> Debrief:
         return Debrief(outcome=outcome, lessons=("ok",))
 '''
+)
 
-_MISMATCHED_PROVIDER = _IMPORTS + '''
+_MISMATCHED_PROVIDER = (
+    _IMPORTS
+    + """
 class MissionProvider:
     film = "other"
 
@@ -66,9 +72,12 @@ class MissionProvider:
 
     def debrief(self, outcome: MissionOutcome) -> Debrief:
         return Debrief(outcome=outcome, lessons=("ok",))
-'''
+"""
+)
 
-_INCOMPLETE_PROVIDER = _IMPORTS + '''
+_INCOMPLETE_PROVIDER = (
+    _IMPORTS
+    + """
 class MissionProvider:
     film = "incomplete"
 
@@ -76,9 +85,12 @@ class MissionProvider:
         return MissionBrief(film=self.film, codename="INCOMPLETE", objectives=("o",))
 
     # execute() is deliberately missing: protocol violation.
-'''
+"""
+)
 
-_RISING_PROVIDER = _IMPORTS + '''
+_RISING_PROVIDER = (
+    _IMPORTS
+    + """
 class MissionProvider:
     film = "rising"
 
@@ -103,9 +115,12 @@ class MissionProvider:
 
     def debrief(self, outcome: MissionOutcome) -> Debrief:
         return Debrief(outcome=outcome)
-'''
+"""
+)
 
-_SLOTTED_PROVIDER = _IMPORTS + '''
+_SLOTTED_PROVIDER = (
+    _IMPORTS
+    + '''
 class MissionProvider:
     """Slotted: instances cannot be bound to a slug by discovery."""
 
@@ -130,6 +145,7 @@ class MissionProvider:
     def debrief(self, outcome: MissionOutcome) -> Debrief:
         return Debrief(outcome=outcome)
 '''
+)
 
 
 def _write_film(tmp_path: Path, slug: str, source: str) -> Path:
@@ -232,3 +248,46 @@ def test_discover_binds_and_collects_tmp_films(tmp_path: Path) -> None:
 def test_discover_nonexistent_search_path() -> None:
     with pytest.raises(DiscoveryError, match="search path"):
         discover(search_paths=["/definitely/not/a/real/dir_xyz"])
+
+
+def test_discover_skips_unreadable_search_path_entry(tmp_path: Path) -> None:
+    """An unlistable directory is skipped, never fatal — with a real chmod, no mocks.
+
+    Running as root defeats the permission bits; the assertion holds either
+    way (an empty or unreadable directory yields no providers), so the test is
+    honest under both conditions rather than silently skipped.
+    """
+    blocked = tmp_path / "blocked"
+    blocked.mkdir()
+    films_dir = _write_film(tmp_path / "readable", "omicron", _UNBOUND_PROVIDER)
+    blocked.chmod(0o000)
+    try:
+        providers = discover(search_paths=[blocked, films_dir])
+    finally:
+        blocked.chmod(0o700)
+    assert set(providers) == {"omicron"}
+
+
+def test_load_provider_restores_sys_path(tmp_path: Path) -> None:
+    """Discovery must leave ``sys.path`` exactly as it found it."""
+    films_dir = _write_film(tmp_path, "upsilon", _UNBOUND_PROVIDER)
+    before = list(sys.path)
+    load_provider("upsilon", search_paths=[films_dir])
+    assert sys.path == before
+
+
+#: A real film that rewrites ``sys.path`` while being imported — the one case
+#: where discovery's path restoration finds its entry already gone.
+_PATH_MUTATING_PROVIDER = (
+    "import sys\nsys.path = [entry for entry in sys.path if 'films_phi' not in entry]\n"
+) + _UNBOUND_PROVIDER
+
+
+def test_load_provider_tolerates_film_that_rewrote_sys_path(tmp_path: Path) -> None:
+    """A film that removes our entry on import is the film's business, not a failure."""
+    films_dir = _write_film(tmp_path, "phi", _PATH_MUTATING_PROVIDER)
+    before = list(sys.path)
+    provider = load_provider("phi", search_paths=[films_dir])
+    assert provider.film == "phi"
+    assert str(films_dir) not in sys.path
+    sys.path[:] = before

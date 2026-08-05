@@ -9,7 +9,9 @@ introducing a mock, moving logic to scripts/, breaking the layer boundary,
 silently editing the protocol — breaks the contract and misleads every agent
 that implements against it.
 
-Read this file before touching any other file in this project.
+Read this file before touching any other file in this project. It states seven
+rules; `docs/architecture.md` states where each module's logic belongs, and
+`docs/testing_philosophy.md` states how the rules are enforced by tests.
 
 ---
 
@@ -26,6 +28,22 @@ Read this file before touching any other file in this project.
 - Do **not** add `infrastructure.*` imports, `numpy`, or other heavy
   dependencies to the core. The protocol must stay liftable into any Python
   environment (stdlib + `pyyaml` for config parsing only).
+
+### What "frozen" permits
+
+Additive work is allowed and encouraged; subtractive or mutating work is not.
+Phase 4 added `src/bond_api/capabilities.py` and Phase 5 published
+`SERIALIZATION_TAG` without touching a single existing field — that is the
+pattern to follow.
+
+| Change | Allowed? |
+|---|---|
+| New module under `src/bond_api/` | Yes |
+| New helper function, new exported constant | Yes |
+| New keyword argument with a default that preserves current behavior | Yes |
+| Renaming a field, tightening validation, changing a default | No — versioned migration |
+| Changing `MissionProvider`'s five stage signatures or `MISSION_FLOW` | No — the whole fleet implements them |
+| Changing the wire tag or the JSON encoding rules | No — wire-format migration |
 
 ## Rule 2: Coverage Gate — ≥90% on `src/`
 
@@ -79,6 +97,39 @@ Adding a token: add it to the `variables` dict in
 `src/bond_api/manuscript_variables.py`, reference it in a manuscript file,
 and let `tests/test_manuscript_variables.py::test_all_manuscript_tokens_are_generated`
 verify the cross-reference.
+
+The current token map and where each value comes from:
+
+| Token | Source of truth |
+|---|---|
+| `BOND_IDENTITY`, `BOND_CODENAME` | `protocol.py` constants |
+| `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES` | `protocol_surface()` |
+| `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS` | `MISSION_FLOW` |
+| `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES` | `capabilities.CAPABILITY_NAMES` |
+| `BOND_SERIALIZATION_TAG` | `serialization.SERIALIZATION_TAG` |
+| `BOND_VERSION`, `BOND_TITLE`, `BOND_SUBTITLE` | `manuscript/config.yaml` → `paper:` |
+| `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` | `manuscript/config.yaml` → `protocol:` |
+| `BOND_COVERAGE_FLOOR` | `pyproject.toml` → `[tool.coverage.report] fail_under` |
+| `PYTHON_VERSION`, `GENERATION_TIMESTAMP` | the running interpreter |
+
+Prefer a token over a literal whenever the value could change without the
+prose being edited — counts, floors, slugs, wire keys, versions.
+
+## Rule 7: A Gate That Cannot Fail Is Not a Gate
+
+Before adding or trusting a check, ask what input makes it fail, then supply
+that input in a test. Three patterns are already enforced here and must not
+regress:
+
+- an inventory-scanning gate asserts its scan set is non-empty
+  (`resolve_manuscript_tree` strict mode, `test_script_inventory_is_not_empty`,
+  `test_all_manuscript_tokens_are_generated`);
+- a validity check that the real package always satisfies is extracted into a
+  callable helper so a test can feed it invalid input (`require_surface`);
+- structural claims about code are checked with `ast`, not substring greps
+  (`test_scripts_are_thin_orchestrators`).
+
+See `docs/testing_philosophy.md` § "Gates must be able to fail".
 
 ## Verification Checklist
 

@@ -250,9 +250,7 @@ def test_hash_provenance_is_deterministic() -> None:
 
 def test_hash_provenance_changes_with_fields() -> None:
     assert hash_provenance(make_provenance()) != hash_provenance(make_provenance(seed=8))
-    assert hash_provenance(make_provenance()) != hash_provenance(
-        make_provenance(input_hash="different")
-    )
+    assert hash_provenance(make_provenance()) != hash_provenance(make_provenance(input_hash="different"))
 
 
 def test_hash_provenance_matches_fingerprint_of_fields() -> None:

@@ -7,7 +7,7 @@ missions. Explicitly out of scope for this package:
 
 - mission scheduling, orchestration, or coordination (bond-coordinator,
   bond-orchestrator);
-- film content — the 27 film packages implement `mission.MissionProvider`;
+- film content — the {{BOND_NUM_FILMS}} film packages implement `mission.MissionProvider`;
 - CLI surface and user tooling (bond-cli);
 - shared helpers for the suite (bond-utilities), when that package lands;
 - any mutation of the protocol after this freeze — changes require a versioned
@@ -15,7 +15,7 @@ missions. Explicitly out of scope for this package:
 
 ## Design relationship
 
-- **Film packages**: implement the contract exactly as `films/sable/mission.py`
+- **Film packages**: implement the contract exactly as `films/{{BOND_REFERENCE_FILM}}/mission.py`
   does — discoverable by slug, deterministic, self-describing briefs.
 - **Coordinators**: consume `discover()` + `MissionRegistry`, move artifacts
   with `to_json`/`from_json`, and never import film internals.

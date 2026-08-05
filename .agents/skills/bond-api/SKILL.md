@@ -47,7 +47,17 @@ uv run python scripts/z_generate_manuscript_variables.py
   runtime protocol check, because `film` is part of the checkable surface.
 - **`sys.modules` caches slug imports.** Hosting two packages under the same
   slug in different locations requires distinct slugs.
-- **Reserved key.** `__bond_type__` is reserved in serialized payloads.
+- **Reserved key.** `__bond_type__` is reserved in serialized payloads; use
+  the published `bond_api.serialization.SERIALIZATION_TAG` rather than
+  retyping the literal.
+- **Deepen additively.** New behavior goes in a new module or a new helper
+  (as `src/bond_api/capabilities.py` did) — never by editing a frozen field.
+- **A gate must be able to fail.** Every check needs an input that makes it
+  fail, supplied in a test: assert non-empty scan sets, extract
+  always-satisfied validity checks into callables a test can misfeed, and
+  make structural claims with `ast` rather than substring greps.
+- **No hand-authored metrics.** Manuscript numbers arrive as `{{TOKEN}}`s from
+  `manuscript_variables.py` + `config.yaml` + `pyproject.toml`.
 
 ## Cross-refs
 

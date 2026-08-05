@@ -9,7 +9,7 @@ looks like, what an outcome must prove about itself.
 
 BOND-API exists to make that agreement explicit and durable. It is *the
 protocol*: the single contract every film package implements and every
-coordinator consumes. Freezing it first — before any of the 27 film packages
+coordinator consumes. Freezing it first — before any of the {{BOND_NUM_FILMS}} film packages
 are written — means the films are coded against a stable, tested surface
 rather than a moving one.
 
@@ -24,7 +24,7 @@ rather than a moving one.
   film-provided gadgets and `MissionRegistry` for discovered providers.
 - **Serialization** (`src/bond_api/serialization.py`): deterministic JSON
   round-trips of every protocol object — no pickling.
-- **The reference film** (`films/sable/mission.py`): a real, deterministic
+- **The reference film** (`films/{{BOND_REFERENCE_FILM}}/mission.py`): a real, deterministic
   provider that exercises the full lifecycle and demonstrates the contract.
 
 ## Reader's guide

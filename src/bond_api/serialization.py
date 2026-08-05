@@ -24,11 +24,23 @@ from typing import Any
 
 import bond_api.protocol as _protocol
 
-__all__ = ["SerializationError", "from_dict", "from_json", "to_dict", "to_json"]
+__all__ = [
+    "SERIALIZATION_TAG",
+    "SerializationError",
+    "from_dict",
+    "from_json",
+    "to_dict",
+    "to_json",
+]
 
 _TYPE_TAG = "__bond_type__"
 _TUPLE_TAG = "tuple"
 _LIST_TAG = "list"
+
+#: The single reserved wire-format key, published so documentation, manuscript
+#: tokens, and downstream layers bind to the live value instead of repeating
+#: the literal string. Changing it is a wire-format migration.
+SERIALIZATION_TAG = _TYPE_TAG
 
 _PRIMITIVES = (str, int, float, bool)
 
