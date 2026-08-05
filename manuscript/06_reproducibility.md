@@ -31,6 +31,35 @@ The protocol makes determinism a contract, not a hope:
 
 `output/` is disposable: regenerate, never hand-edit.
 
+### Regeneration is byte-identical
+
+Both artifacts above are byte-identical across repeated regeneration on one
+interpreter: running `scripts/z_generate_manuscript_variables.py` twice writes
+the same bytes, no matter how much time passes between the runs. This holds
+because `generate_variables()` reads **no wall clock**. Every token resolves
+from a committed source — the live package surface, `manuscript/config.yaml`,
+or the `fail_under` gate in `pyproject.toml`. The manuscript date is
+`paper.date` from the config, a value that changes in a diff rather than on
+every run.
+
+The scope of that claim, stated exactly:
+
+- **In scope**: repeated runs of the generator on the same interpreter produce
+  identical bytes for `output/data/manuscript_variables.json` and every file
+  under `output/manuscript/`.
+- **Out of scope**: a *different* interpreter. `PYTHON_VERSION` is the one
+  environment-derived token, so upgrading Python deliberately changes those
+  bytes — that is the token doing its job, and the manuscript says which
+  interpreter produced its text.
+
+This is bound by `tests/test_regeneration_determinism.py`, which runs the real
+generator script twice into two directories, sleeps across a whole-second
+boundary between them so any clock read would show, and compares every output
+file byte for byte. A companion `ast` gate fails if a wall-clock call is
+reintroduced into the generator module, and that gate carries a positive
+control — it is fed a source that *does* read the clock and must flag it, so
+it cannot pass by scanning for something it would never find.
+
 ## Token hydration
 
 Every token in `manuscript/*.md` resolves through
@@ -44,7 +73,8 @@ and never a hand-typed value:
 | Version, title, subtitle, reference film, film count | `manuscript/config.yaml` |
 | Wire-format tag | `bond_api.serialization.SERIALIZATION_TAG` |
 | Coverage floor | the `fail_under` gate in `pyproject.toml` |
-| Python version, generation timestamp | the running interpreter |
+| Manuscript date | `manuscript/config.yaml` → `paper.date` (committed, never a clock read) |
+| Python version | the running interpreter |
 
 Deriving the coverage floor from `pyproject.toml` rather than from prose or
 config means the manuscript quotes the gate that actually runs; deriving the

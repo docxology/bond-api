@@ -8,13 +8,22 @@ through this module so the manuscript cannot drift from the code.
 The consuming orchestrator is ``scripts/z_generate_manuscript_variables.py``
 (thin wrapper); the live cross-reference gate lives in
 ``tests/test_manuscript_variables.py``.
+
+**No wall clock.** Every value here comes from a committed source — the live
+package, ``manuscript/config.yaml``, ``pyproject.toml``, or the running
+interpreter — so two runs of the generator write byte-identical artifacts.
+The manuscript date is read from ``paper.date`` in the config (a committed
+value that changes by edit, in a diff) rather than from ``datetime.now``:
+a clock read here would make ``output/`` differ on every regeneration and
+falsify the determinism claim in ``manuscript/06_reproducibility.md``.
+``tests/test_regeneration_determinism.py`` binds that byte-identity by
+running the generator twice across a whole-second boundary.
 """
 
 from __future__ import annotations
 
 import platform
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +37,7 @@ __all__ = [
     "generate_variables",
     "load_manuscript_config",
     "read_coverage_floor",
+    "require_manuscript_date",
     "require_surface",
     "resolve_manuscript_tree",
 ]
@@ -39,6 +49,8 @@ DEFAULT_PYPROJECT_PATH = PACKAGE_ROOT / "pyproject.toml"
 _TOKEN_RE = re.compile(r"\{\{[A-Z0-9_]+\}\}")
 #: Matches the enforced coverage floor declared in ``[tool.coverage.report]``.
 _FAIL_UNDER_RE = re.compile(r"^\s*fail_under\s*=\s*(\d+)\s*$", re.MULTILINE)
+#: ``paper.date`` must be a plain ISO calendar date — no time, no zone, no clock.
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_manuscript_config(config_path: str | Path | None = None) -> dict[str, Any]:
@@ -69,6 +81,30 @@ def read_coverage_floor(pyproject_path: str | Path | None = None) -> int:
     if match is None:
         raise ValueError(f"no 'fail_under' coverage gate declared in {path}")
     return int(match.group(1))
+
+
+def require_manuscript_date(paper: dict[str, Any]) -> str:
+    """Return the committed manuscript date from a config ``paper`` section.
+
+    This is the token that used to be a ``datetime.now`` read. A wall clock
+    made every regeneration of ``output/`` differ, which silently falsified
+    the determinism contract the reproducibility section states. The date now
+    comes from ``paper.date`` — a committed value that changes only in a diff.
+
+    A missing, blank, or non-calendar value is an error rather than a
+    substituted default: falling back to *today* would reintroduce exactly the
+    clock dependence this function exists to remove. Extracted as its own
+    callable so the gate has a positive control — a test can hand it a bad
+    ``paper`` section instead of the check being green purely because the real
+    config always carries a good date.
+    """
+    raw = paper.get("date")
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError("manuscript config 'paper.date' must be a non-empty ISO date string (YYYY-MM-DD)")
+    date = raw.strip()
+    if not _ISO_DATE_RE.match(date):
+        raise ValueError(f"manuscript config 'paper.date' must be a plain YYYY-MM-DD calendar date, got {date!r}")
+    return date
 
 
 def require_surface(surface: dict[str, Any]) -> None:
@@ -123,8 +159,8 @@ def generate_variables(
         "BOND_REFERENCE_FILM": str(protocol_config.get("reference_film", "")),
         "BOND_NUM_FILMS": str(protocol_config.get("film_count", "")),
         "BOND_COVERAGE_FLOOR": str(read_coverage_floor(pyproject_path)),
+        "BOND_MANUSCRIPT_DATE": require_manuscript_date(paper),
         "PYTHON_VERSION": platform.python_version(),
-        "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
 

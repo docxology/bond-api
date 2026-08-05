@@ -41,6 +41,9 @@ uv run python scripts/z_generate_manuscript_variables.py
 - **Keep scripts thin.** Business logic belongs in `src/bond_api/`, never in
   `scripts/`.
 - **No mocks.** Tests must use real data, real files, real computation.
+- **No wall clock in generated artifacts.** `generate_variables()` reads no
+  clock; regenerating `output/` twice on one interpreter writes identical
+  bytes (`tests/test_regeneration_determinism.py`).
 - **Deterministic.** `to_json` output is byte-deterministic; no untracked
   random reliance; reference film uses a fixed seed.
 - **Discovery binding order.** `load_provider` binds the slug before the

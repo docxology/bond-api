@@ -5,12 +5,21 @@ BOND-API is Layer 1 of the BOND suite: the frozen mission protocol contract
 the machinery every coordinator needs — tagged deterministic JSON, slug-based
 film discovery, two registries, capability helpers, and the `sable` reference
 film. Verified state as of the run recorded below (macOS arm64, CPython
-3.14.6): **191 tests pass, 100.00% line and branch coverage on `src/`**
+3.14.6): **211 tests pass, 100.00% line and branch coverage on `src/`**
 (`uv run pytest tests/ --cov=src --cov-fail-under=90`, enforced floor 90),
 `ruff check` and `mypy src/ scripts/ films/` both clean. All six findings from
 the adversarial audit (`output/verify/bond-api.json`) were remediated in
 `aadd9f8`; what remains below is what that pass could not close plus what
 reading the code this session turned up.
+
+The reproducibility section's byte-identity claim is now true and bound:
+`generate_variables()` no longer reads a wall clock (the old
+`GENERATION_TIMESTAMP` token is gone, replaced by `BOND_MANUSCRIPT_DATE` from
+`manuscript/config.yaml` → `paper.date`), and
+`tests/test_regeneration_determinism.py` runs the real generator twice across
+a whole-second boundary and compares every artifact byte for byte. Before the
+fix two consecutive regenerations hashed `2b1e126c…` and `365114ac…`; after it
+they hash `d29b9acc…` both times.
 
 This file is forward-only: completed items are deleted, not archived.
 

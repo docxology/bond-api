@@ -74,6 +74,10 @@ scripted in-test providers) with real data and real computation.
 - Fixed seeds; no untracked random reliance.
 - `to_json` output is byte-deterministic (key-sorted, fixed indent) — tests
   assert exact equality, not bounds.
+- **No wall clock in generated artifacts.** `generate_variables()` reads no
+  clock, so regenerating `output/` twice on one interpreter writes identical
+  bytes. Adding a `datetime.now`/`time.time` token would break that and is
+  caught by `tests/test_regeneration_determinism.py`.
 - Any future timing assertions must use bounds, not exact values, and must
   document why timing is the relevant property.
 
@@ -110,7 +114,8 @@ The current token map and where each value comes from:
 | `BOND_VERSION`, `BOND_TITLE`, `BOND_SUBTITLE` | `manuscript/config.yaml` → `paper:` |
 | `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` | `manuscript/config.yaml` → `protocol:` |
 | `BOND_COVERAGE_FLOOR` | `pyproject.toml` → `[tool.coverage.report] fail_under` |
-| `PYTHON_VERSION`, `GENERATION_TIMESTAMP` | the running interpreter |
+| `BOND_MANUSCRIPT_DATE` | `manuscript/config.yaml` → `paper.date` (committed; never a clock read) |
+| `PYTHON_VERSION` | the running interpreter |
 
 Prefer a token over a literal whenever the value could change without the
 prose being edited — counts, floors, slugs, wire keys, versions.

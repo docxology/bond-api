@@ -111,7 +111,11 @@ class MissionProvider:
   enforced by an `ast`-based test, not by review.
 - **No mocks**: tests use real data, real files, real subprocesses.
 - **Deterministic**: fixed seeds, no untracked random reliance; `to_json` is
-  byte-deterministic.
+  byte-deterministic. The manuscript generator reads no wall clock, so
+  regenerating `output/` twice on one interpreter writes identical bytes —
+  bound by `tests/test_regeneration_determinism.py`. (`PYTHON_VERSION` is the
+  one environment-derived token, so a different interpreter changes those
+  bytes by design.)
 - **Frozen contract**: additive changes only. Renaming a field, tightening
   validation, or changing a default is a versioned migration, never a silent
   edit.

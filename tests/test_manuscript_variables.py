@@ -18,6 +18,7 @@ from bond_api.manuscript_variables import (
     generate_variables,
     load_manuscript_config,
     read_coverage_floor,
+    require_manuscript_date,
     require_surface,
     resolve_manuscript_tree,
 )
@@ -55,13 +56,53 @@ def test_all_manuscript_tokens_are_generated() -> None:
 def test_generate_variables_custom_config(tmp_path: Path) -> None:
     config = tmp_path / "config.yaml"
     config.write_text(
-        'paper:\n  title: "Custom Title"\n  subtitle: "Custom Subtitle"\n  version: "9.9.9"\n',
+        'paper:\n  title: "Custom Title"\n  subtitle: "Custom Subtitle"\n'
+        '  version: "9.9.9"\n  date: "1963-10-10"\n',
         encoding="utf-8",
     )
     variables = generate_variables(config_path=config)
     assert variables["BOND_TITLE"] == "Custom Title"
     assert variables["BOND_SUBTITLE"] == "Custom Subtitle"
     assert variables["BOND_VERSION"] == "9.9.9"
+    assert variables["BOND_MANUSCRIPT_DATE"] == "1963-10-10"
+
+
+def test_manuscript_date_comes_from_the_committed_config() -> None:
+    """The date token is a committed value, not a clock read."""
+    declared = load_manuscript_config()["paper"]["date"]
+    assert generate_variables()["BOND_MANUSCRIPT_DATE"] == declared
+
+
+def test_require_manuscript_date_accepts_the_live_config() -> None:
+    require_manuscript_date(dict(load_manuscript_config()["paper"]))
+
+
+@pytest.mark.parametrize(
+    "paper",
+    [{}, {"date": ""}, {"date": "   "}, {"date": None}, {"date": 20260804}],
+)
+def test_require_manuscript_date_rejects_missing_or_blank(paper: dict[str, object]) -> None:
+    """Positive control: a missing date is an error, never a substituted 'today'."""
+    with pytest.raises(ValueError, match="non-empty ISO date"):
+        require_manuscript_date(paper)
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["2026-8-4", "04-08-2026", "2026-08-04T12:00:00+00:00", "yesterday"],
+)
+def test_require_manuscript_date_rejects_non_calendar_values(value: str) -> None:
+    """A timestamp-shaped value is rejected: only a plain calendar date is committed."""
+    with pytest.raises(ValueError, match="plain YYYY-MM-DD"):
+        require_manuscript_date({"date": value})
+
+
+def test_generate_variables_fails_on_a_config_without_a_date(tmp_path: Path) -> None:
+    """The gate fires through the public entry point, not only on the helper."""
+    config = tmp_path / "config.yaml"
+    config.write_text('paper:\n  version: "9.9.9"\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="non-empty ISO date"):
+        generate_variables(config_path=config)
 
 
 def test_load_manuscript_config_missing_file(tmp_path: Path) -> None:

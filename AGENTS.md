@@ -18,7 +18,12 @@ suite at `projects/working/bond/bond-api/`.
 5. **No mocks.** Tests use real data, real files, real computation —
    no `unittest.mock`, no `MagicMock`, no `@patch`.
 6. **Deterministic.** Fixed seeds; no untracked random reliance; `to_json`
-   output is byte-deterministic (key-sorted, fixed indent).
+   output is byte-deterministic (key-sorted, fixed indent). No wall clock in
+   generated artifacts: `generate_variables()` reads no clock, so regenerating
+   `output/` twice on one interpreter writes identical bytes
+   (`tests/test_regeneration_determinism.py`). `PYTHON_VERSION` is the one
+   environment-derived token — a different interpreter changes those bytes by
+   design.
 7. **Quality gates.** `uv run pytest tests/ --cov=src --cov-fail-under=90`
    plus `uv run ruff check src/ scripts/ films/` and
    `uv run mypy src/ scripts/ films/` must all pass.

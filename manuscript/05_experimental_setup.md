@@ -23,8 +23,11 @@ The current version is {{BOND_VERSION}}.
 
 ## Environment
 
-- Python: {{PYTHON_VERSION}}
-- Variables generated: {{GENERATION_TIMESTAMP}} (UTC)
+- Python: {{PYTHON_VERSION}} (the interpreter that generated this text)
+- Manuscript date: {{BOND_MANUSCRIPT_DATE}} — read from `manuscript/config.yaml`
+  → `paper.date`, a committed value, not a clock read. The generator reads no
+  wall clock at all, so regenerating `output/` twice produces byte-identical
+  files; see `manuscript/06_reproducibility.md`.
 - Only external runtime dependency: `pyyaml` (manuscript config parsing); the
   protocol core is stdlib-only.
 

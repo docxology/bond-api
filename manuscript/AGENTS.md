@@ -20,7 +20,7 @@ the section modification workflow.
 | `02_methodology.md` | Lifecycle, frozen dataclasses, provider contract, discovery, discovery failure semantics, serialization, registries, capability helpers | `BOND_NUM_FILMS`, `BOND_SERIALIZATION_TAG` |
 | `03_results.md` | Protocol surface, conformance evidence, gate integrity | `BOND_NUM_DATACLASSES`, `BOND_PROTOCOL_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_COVERAGE_FLOOR`, `BOND_SERIALIZATION_TAG`, `BOND_REFERENCE_FILM` |
 | `04_conclusion.md` | What the version delivers; what the freeze buys; freeze statement | `BOND_VERSION`, `BOND_NUM_DATACLASSES`, `BOND_NUM_PROVIDER_METHODS`, `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES`, `BOND_SERIALIZATION_TAG`, `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` |
-| `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `BOND_REFERENCE_FILM`, `BOND_COVERAGE_FLOOR`, `PYTHON_VERSION`, `GENERATION_TIMESTAMP` |
+| `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `BOND_REFERENCE_FILM`, `BOND_COVERAGE_FLOOR`, `PYTHON_VERSION`, `BOND_MANUSCRIPT_DATE` |
 | `06_reproducibility.md` | Determinism policy, artifact inventory, token hydration sources | None |
 | `07_scope_and_related_work.md` | Out-of-scope, design relationships, related standards | `BOND_NUM_FILMS`, `BOND_REFERENCE_FILM` |
 | `99_references.md` | Standards and repository references (real, checkable sources only) | `BOND_NUM_DATACLASSES`, `BOND_SERIALIZATION_TAG` |

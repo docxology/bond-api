@@ -43,11 +43,15 @@ cross-reference gate is
 | `BOND_PROVIDER_METHODS` | Comma-joined stage names |
 | `BOND_NUM_CAPABILITIES` | Count of capability helpers |
 | `BOND_CAPABILITIES` | Comma-joined capability helper names |
+| `BOND_MANUSCRIPT_DATE` | Committed manuscript date from `config.yaml` → `paper.date` |
 | `PYTHON_VERSION` | Interpreter version at generation time |
-| `GENERATION_TIMESTAMP` | UTC ISO timestamp at generation time |
 
 ## Rules
 
 - No hardcoded metrics in prose — always tokens.
 - No literal `{{...}}` text outside real token references.
+- **No wall clock in a token.** Every token must resolve from a committed
+  source; a `datetime.now` value would make `output/` differ on every
+  regeneration and falsify `06_reproducibility.md`. Enforced by
+  `tests/test_regeneration_determinism.py`.
 - Keep `config.yaml` and `config.yaml.example` in sync.
