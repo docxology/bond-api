@@ -49,6 +49,16 @@ def _reference_film_slug() -> str:
     return str(load_provider("sable", search_paths=[FILMS_DIR]).film)
 
 
+def _package_version() -> str:
+    """The version declared in ``pyproject.toml`` [project] — the single source."""
+    text = (PACKAGE_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("version ="):
+            return stripped.split("=", 1)[1].strip().strip('"')
+    raise AssertionError("pyproject.toml [project] version not found")
+
+
 #: claim_id -> callable returning the value re-derived from the source of truth.
 VERIFIERS: dict[str, Callable[[], Any]] = {
     "protocol-dataclass-count": lambda: len(protocol_surface()["dataclasses"]),
@@ -57,6 +67,7 @@ VERIFIERS: dict[str, Callable[[], Any]] = {
     "coverage-floor": lambda: read_coverage_floor(),
     "serialization-type-tag": lambda: SERIALIZATION_TAG,
     "reference-film-slug": _reference_film_slug,
+    "package-version": _package_version,
 }
 
 

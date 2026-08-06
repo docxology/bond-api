@@ -56,8 +56,7 @@ def test_all_manuscript_tokens_are_generated() -> None:
 def test_generate_variables_custom_config(tmp_path: Path) -> None:
     config = tmp_path / "config.yaml"
     config.write_text(
-        'paper:\n  title: "Custom Title"\n  subtitle: "Custom Subtitle"\n'
-        '  version: "9.9.9"\n  date: "1963-10-10"\n',
+        'paper:\n  title: "Custom Title"\n  subtitle: "Custom Subtitle"\n  version: "9.9.9"\n  date: "1963-10-10"\n',
         encoding="utf-8",
     )
     variables = generate_variables(config_path=config)

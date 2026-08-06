@@ -36,6 +36,11 @@ from bond_api.serialization import (
 )
 
 
+def _raise_on_constant(_token: str) -> Any:
+    """json.loads parse_constant that refuses NaN/Infinity literals."""
+    raise ValueError(_token)
+
+
 def make_provenance(**overrides: Any) -> Provenance:
     base = {"package_version": "0.1.0", "seed": 7, "input_hash": "abc123", "wall_time_s": 0.5}
     base.update(overrides)
@@ -122,10 +127,75 @@ def make_brief_like() -> MissionBrief:
     )
 
 
-def test_output_is_valid_json() -> None:
+def test_output_is_valid_strict_json() -> None:
+    """The wire output must parse with a strict RFC 8259 parser.
+
+    Python's own json.loads accepts bare ``NaN``/``Infinity`` literals, so a
+    plain ``json.loads`` cannot certify validity. Parsing with a
+    ``parse_constant`` callback that raises makes any non-finite token fail
+    here. (C1/V1.)
+    """
     text = to_json(make_outcome())
-    assert json.loads(text)["success"] is True
-    assert isinstance(json.loads(text), dict)
+    assert isinstance(text, str)
+    data = json.loads(text, parse_constant=_raise_on_constant)
+    assert data["success"] is True
+    assert isinstance(data, dict)
+
+
+def test_non_finite_payload_float_is_rejected_at_encode() -> None:
+    """A non-finite float anywhere in a payload must never reach the wire."""
+    for bad in (float("inf"), float("-inf"), float("nan")):
+        with pytest.raises(SerializationError, match="non-finite float"):
+            to_json(Asset(kind="k", name="n", payload={"x": bad}))
+        with pytest.raises(SerializationError, match="non-finite float"):
+            to_json(make_outcome(results={"x": bad}))
+        with pytest.raises(SerializationError, match="non-finite float"):
+            to_dict(make_outcome(results={"nested": {"x": bad}}))
+
+
+def test_from_json_rejects_non_finite_literals() -> None:
+    """A foreign document carrying NaN/Infinity must fail loudly, not silently
+    decode to Python floats the encoder could never re-emit as JSON."""
+    for doc in ('{"a": Infinity}', '{"a": -Infinity}', '{"a": NaN}', "[NaN, 1]"):
+        with pytest.raises(SerializationError, match="not valid RFC 8259 JSON"):
+            from_json(doc)
+
+
+def test_provenance_rejects_non_finite_wall_time() -> None:
+    """``Provenance.wall_time_s`` must be finite: inf passes the >=0 check but
+    can never be serialized to RFC 8259 JSON, so it is rejected at construction."""
+    for bad in (float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match="finite number"):
+            make_provenance(wall_time_s=bad)
+
+
+@pytest.mark.parametrize("tag", [None, False, 0, [], {}, "gadget"])
+def test_reserved_tag_with_invalid_value_is_rejected_on_decode(tag) -> None:
+    """The reserved key may only carry a known wire tag; null/false/0/[]/{} and
+    unknown strings must fail loudly instead of decoding to an untagged dict."""
+    import json as _json
+
+    doc = _json.dumps({"__bond_type__": tag, "a": 1})
+    with pytest.raises(SerializationError, match="unknown bond type"):
+        from_json(doc)
+
+
+def test_round_trip_is_total_over_accepted_documents() -> None:
+    """Every document from_json accepts must re-encode through to_json: the
+    decode::encode closure must be total so the round trip never dead-ends."""
+    accepted = [
+        '{"a": 1, "b": [1, {"c": null}]}',
+        to_json(make_outcome()),
+        to_json(make_provenance()),
+        '{"__bond_type__": "tuple", "items": [1, 2]}',
+        '{"__bond_type__": "list", "items": ["x"]}',
+        '"hi"',
+        "[1, true, null, {}]",
+    ]
+    for doc in accepted:
+        decoded = from_json(doc)
+        reencoded = to_json(decoded)
+        assert from_json(reencoded, expected=type(decoded)) == decoded
 
 
 def test_from_dict_round_trip() -> None:

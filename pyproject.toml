@@ -49,7 +49,7 @@ omit = [
 
 [tool.coverage.report]
 # ≥90% on src/ is the enforced gate; live coverage % is tracked in
-# docs/_generated/COUNTS.md (do not hardcode it here — it drifts).
+# the suite run itself (uv run pytest tests/ --cov=src) and is never hardcoded here.
 fail_under = 90
 show_missing = true
 precision = 2
@@ -63,7 +63,7 @@ exclude_lines = [
 # Project-local mypy settings (the monorepo root config has no mypy_path for
 # this package's src/ layout). Mirrors the root gates: strict-ish typing,
 # explicit package bases, ignore missing stubs.
-python_version = "3.12"
+python_version = "3.10"
 mypy_path = ["src"]
 explicit_package_bases = true
 warn_return_any = true

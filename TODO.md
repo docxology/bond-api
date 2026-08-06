@@ -316,3 +316,103 @@ different interpreter.
    input first and watch it fail.
 4. Re-run the verification block above before claiming done, and read the
    output rather than the exit code.
+
+## Round-2 (2026-08-06)
+
+Round-2 improvement pass. Baseline: 211 tests passed, 100.00% line & branch
+coverage on `src/`, `ruff check` clean, `mypy src/ scripts/ films/` clean,
+`ruff format --check` failing on `tests/test_manuscript_variables.py:59`
+(one long string). This round closed six of the open backlog items and added
+a new limitations manuscript section.
+
+### Fixed this round (with test evidence)
+
+**C1 — non-finite floats now rejected at encode and decode.**
+`serialization.py::_encode` rejects `inf`/`-inf`/`nan` floats with
+`SerializationError` (RFC 8259 has no such token), `from_json` parses with a
+`parse_constant` callback that refuses `NaN`/`Infinity` literals from foreign
+documents, and `protocol.py::_require_number` rejects a non-finite
+`Provenance.wall_time_s` at construction (`inf >= 0` previously passed).
+Regression tests: `test_non_finite_payload_float_is_rejected_at_encode`,
+`test_from_json_rejects_non_finite_literals`,
+`test_provenance_rejects_non_finite_wall_time`,
+`test_output_is_valid_strict_json` (formerly `test_output_is_valid_json`,
+which only proved Python could read what Python wrote). Before/after
+reproduced live: `to_json(Asset(payload={'x': inf}))` emitted `Infinity` and
+`Provenance(wall_time_s=inf)` constructed; both now raise.
+
+**C2 — null-tag decode hole closed.** `_decode` now treats `__bond_type__`
+as a tag whenever the key is present, so `null`, `false`, `0`, `[]`, `{}`,
+and unknown strings all raise `unknown bond type` instead of decoding to an
+untagged dict that the encoder refuses to re-encode. Reproduced live before
+the fix: `from_json('{"__bond_type__": null, "a": 1}')` returned an untagged
+dict whose `to_json` then dead-ended. Regression tests:
+`test_reserved_tag_with_invalid_value_is_rejected_on_decode` (parametrized
+over `null`/`false`/`0`/`[]`/`{}`/`"gadget"`) and
+`test_round_trip_is_total_over_accepted_documents`.
+
+**C3 — version copies gated together.** `data/claim_ledger.yaml` gained a
+`package-version` row with a verifier reading `pyproject.toml` `[project]
+version`, and new `tests/test_exports.py::test_version_copies_agree_across_the_package`
+asserts the four copies (`pyproject.toml`, `bond_api.__version__`,
+`manuscript/config.yaml` → `paper.version`, `films/sable/_PACKAGE_VERSION`)
+all agree with `pyproject.toml` as the source of truth. A bump in one copy
+now fails the suite (`tests/test_claim_ledger.py` + `tests/test_exports.py`).
+
+**C4 — mypy version floor aligned.** `[tool.mypy] python_version` changed
+`"3.12"` → `"3.10"` to match `requires-python = ">=3.10"`; `uv run mypy src/
+scripts/ films/` still reports success.
+
+**V1 — JSON-validity test now strict.** Renamed
+`test_output_is_valid_json` → `test_output_is_valid_strict_json`, parsing with
+a `parse_constant` callback that raises so any non-finite token fails.
+
+**V2 — `__all__` is now exercised.** `tests/test_exports.py` asserts every
+name in `bond_api.__all__` resolves via `getattr` (with `len(__all__) > 0`)
+and that `from bond_api import *` binds exactly `__all__`.
+
+**D1 — misleading pointer removed.** The `[tool.coverage.report]` comment in
+`pyproject.toml` no longer points the live coverage percentage at the
+monorepo `docs/_generated/COUNTS.md` (which never mentions this package); it
+now says the live figure comes from the suite run itself. `fail_under = 90`
+is unchanged.
+
+Also fixed: `ruff format` gate (baseline failing on
+`tests/test_manuscript_variables.py:59`) is now green.
+
+### Manuscript improvements
+
+Added `manuscript/08_limitations_and_uncertainty.md` — an honest limitations
+section covering the deliberately permissive discovery/`sys.modules`/
+`sys.path`/hashability boundaries, the now-enforced wire-format strictness
+(non-finite floats, reserved-key tags), the interpreter-bounded determinism
+claims, provenance uncertainty, and versioning drift control. Added a
+live-bound capability-helper table to `manuscript/03_results.md` (helper names
+are public API, count from `{{BOND_NUM_CAPABILITIES}}`), and updated the
+reader's guide (`01_introduction.md`), conclusion (`04_conclusion.md`), and
+`manuscript/AGENTS.md` inventory. All tokens resolve strictly; `output/`
+regenerated via `scripts/z_generate_manuscript_variables.py` (17 variables,
+byte-identical on re-run).
+
+### Final gate numbers (round-2 close)
+
+- `uv run pytest tests/ --cov=src --cov-fail-under=90` → **228 passed**,
+  **100.00%** line & branch coverage on `src/`, 0 skipped, 0 failed
+  (updated from the 211-pass / 100.00% baseline).
+- `uv run ruff check src/ scripts/ films/ tests/` → clean.
+- `uv run ruff format --check src/ scripts/ films/ tests/` → clean.
+- `uv run mypy src/ scripts/ films/` → success, no issues.
+- No mocks / no `infrastructure.*` imports in `src/` → clean.
+- `scripts/z_generate_manuscript_variables.py` strict → resolves 17 variables.
+- `scripts/00_preflight.py` and `scripts/demo_mission.py` → run clean.
+
+### Left for a future round
+
+- **V3 — platform/Python-version matrix** remains open (needs CI outside this
+  package, per the original entry).
+- **Version single-source-of-truth** — the four copies are gated to agree but
+  not yet loaded from one value; a future round could make all four read
+  `pyproject.toml` at import.
+- The **extension table** items (adopt bond-utilities, wire-format schema
+  version, downstream conformance harness, provenance chaining) remain as
+  listed; none started speculatively.

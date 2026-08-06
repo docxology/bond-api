@@ -24,6 +24,7 @@ from __future__ import annotations
 import dataclasses
 import inspect
 import json
+import math
 from typing import Any
 
 import bond_api.protocol as _protocol
@@ -67,6 +68,13 @@ class SerializationError(ValueError):
 
 def _encode(value: Any) -> Any:
     if value is None or isinstance(value, _PRIMITIVES):
+        # RFC 8259 has no NaN or Infinity token; Python's json.dumps would
+        # otherwise emit bare literals other parsers reject. Reject them so
+        # the wire format stays plain, portable JSON.
+        if isinstance(value, float) and not math.isfinite(value):
+            raise SerializationError(
+                f"cannot serialize non-finite float {value!r}: RFC 8259 JSON has no NaN or Infinity"
+            )
         return value
     if isinstance(value, tuple):
         return {_TYPE_TAG: _TUPLE_TAG, "items": [_encode(item) for item in value]}
@@ -112,8 +120,14 @@ def _decode(value: Any) -> Any:
     if isinstance(value, list):
         return [_decode(item) for item in value]
     if isinstance(value, dict):
-        tag = value.get(_TYPE_TAG)
-        if tag is not None:
+        if _TYPE_TAG in value:
+            # The reserved key may never appear untagged: a null, false,
+            # numeric, or container tag value would otherwise fall through to
+            # the plain-dict branch and silently decode as a dict that the
+            # encoder then refuses to re-encode (to_json(from_json(doc))
+            # would not be total over accepted documents). Every bad tag is
+            # loud, exactly like the encode side.
+            tag = value[_TYPE_TAG]
             if tag == _TUPLE_TAG:
                 items = value.get("items")
                 if not isinstance(items, list):
@@ -124,14 +138,13 @@ def _decode(value: Any) -> Any:
                 if not isinstance(items, list):
                     raise SerializationError("malformed list encoding: missing 'items' list")
                 return [_decode(item) for item in items]
-            cls = _KNOWN_TYPES.get(tag)
-            if cls is None:
+            if not isinstance(tag, str) or tag not in _KNOWN_TYPES:
                 raise SerializationError(f"unknown bond type {tag!r}")
             try:
-                fields = {field.name: _decode(value[field.name]) for field in dataclasses.fields(cls)}
+                fields = {field.name: _decode(value[field.name]) for field in dataclasses.fields(_KNOWN_TYPES[tag])}
             except KeyError as exc:
                 raise SerializationError(f"malformed encoding for {tag}: missing field {exc.args[0]!r}") from exc
-            return cls(**fields)
+            return _KNOWN_TYPES[tag](**fields)
         return {key: _decode(item) for key, item in value.items()}
     return value
 
@@ -170,8 +183,12 @@ def from_json(text: str, *, expected: type | None = None) -> Any:
             bond type, or (when ``expected`` is given) decodes to a different
             type.
     """
+
+    def _reject_non_finite(token: str) -> Any:
+        raise SerializationError(f"non-finite literal {token!r} is not valid RFC 8259 JSON")
+
     try:
-        data = json.loads(text)
+        data = json.loads(text, parse_constant=_reject_non_finite)
     except json.JSONDecodeError as exc:
         raise SerializationError(f"invalid JSON: {exc}") from exc
     obj = from_dict(data)

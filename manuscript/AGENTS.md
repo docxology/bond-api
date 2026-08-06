@@ -23,6 +23,7 @@ the section modification workflow.
 | `05_experimental_setup.md` | Layout, configuration, environment, run commands | `BOND_VERSION`, `BOND_REFERENCE_FILM`, `BOND_COVERAGE_FLOOR`, `PYTHON_VERSION`, `BOND_MANUSCRIPT_DATE` |
 | `06_reproducibility.md` | Determinism policy, artifact inventory, token hydration sources | None |
 | `07_scope_and_related_work.md` | Out-of-scope, design relationships, related standards | `BOND_NUM_FILMS`, `BOND_REFERENCE_FILM` |
+| `08_limitations_and_uncertainty.md` | Honest limitations, wire-format strictness, bounded evidence, provenance/versioning uncertainty | `BOND_SERIALIZATION_TAG`, `BOND_COVERAGE_FLOOR`, `BOND_VERSION`, `PYTHON_VERSION` |
 | `99_references.md` | Standards and repository references (real, checkable sources only) | `BOND_NUM_DATACLASSES`, `BOND_SERIALIZATION_TAG` |
 | `config.yaml` | Paper metadata + `protocol:` parameters | — |
 | `config.yaml.example` | Reference copy for new projects | — |

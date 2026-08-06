@@ -16,6 +16,7 @@ consume it without knowing a film's internals.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field, is_dataclass
 from typing import Any, Protocol, runtime_checkable
 
@@ -73,6 +74,13 @@ def _require_number(value: Any, label: str, *, minimum: float = 0.0, integer_onl
             isinstance(value, (int, float)) and not isinstance(value, bool),
             f"{label} must be a non-boolean number",
         )
+        # A non-finite float passes the >= minimum check (inf >= 0 is True)
+        # but cannot be serialized to RFC 8259 JSON (see bond_api.serialization).
+        # Reject it here so a Provenance that could never round-trip cannot
+        # be constructed in the first place. NaN fails `>= minimum` already,
+        # so this narrows the hole to +/-inf.
+        if isinstance(value, float) and not math.isfinite(value):
+            _require(False, f"{label} must be a finite number")
     _require(value >= minimum, f"{label} must be >= {minimum}")
 
 

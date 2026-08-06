@@ -51,6 +51,24 @@ in prose.
   key-order independence, derived provenance records, and lesson
   normalization (strip/drop/dedupe, first-occurrence order).
 
+## Capability-helper surface
+
+The {{BOND_NUM_CAPABILITIES}} capability helpers layer reusable semantics on
+the frozen contract without changing a field. Their names are public API
+(pinned by ``CAPABILITY_NAMES`` and exercised by ``tests/test_capabilities.py``);
+
+| Helper(s) | Role |
+|---|---|
+| `brief_issues` / `validate_brief` | Advisory brief validation — duplicate asset names, duplicate constraint kinds, duplicate objectives, whitespace-slack asset names |
+| `plan_schema_issues` / `require_plan_schema` | Plan-step schema checks — duplicate step names, param-key sanity, JSON-serializable params, optional exact step-name sequence |
+| `fingerprint` | Deterministic SHA-256 over the canonical JSON encoding of arbitrary parts |
+| `hash_provenance` | Fingerprint of a full provenance record (all four fields) |
+| `derive_provenance` | Provenance whose `input_hash` derives from the mission inputs |
+| `normalize_lessons` / `normalize_debrief` | Strip, drop, and dedupe lessons preserving first-occurrence order; re-validate the outcome |
+
+Each helper's exact behavior and failure mode is pinned by a dedicated test, and
+all of them serialize through the same JSON surface as the protocol objects.
+
 ## Gate integrity
 
 Four gates in this package could have passed for the wrong reason, and all

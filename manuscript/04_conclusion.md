@@ -34,3 +34,12 @@ Downstream packages (bond-coordinator, bond-orchestrator, bond-cli, and the
 film packages) implement against this version ({{BOND_VERSION}}) of the
 protocol. The contract stays intentionally frozen: changes require a new
 version and a deliberate migration, never a silent edit.
+
+Since the last revision the wire format is strict where loose encoders are
+costly: non-finite floats are rejected at both encode and decode, and a
+payload dict carrying the reserved {{BOND_SERIALIZATION_TAG}} key with an
+unrecognised tag value fails loudly rather than silently decoding as an
+untagged dict. The honest limits of the package — the deliberately permissive
+boundaries, the interpreter-bounded determinism claims, and the provenance
+uncertainty — are stated in Chapter 8 rather than left for a reader to
+discover.

@@ -31,4 +31,6 @@ rather than a moving one.
 
 Chapter 2 defines the protocol and the discovery/serialization conventions.
 Chapter 3 reports conformance evidence from the test suite. Chapters 5–6
-document the environment and reproducibility contract.
+document the environment and reproducibility contract. Chapter 8 is the
+honest counterweight: the deliberately permissive boundaries, the wire-format
+strictness now enforced, and the places where the evidence is bounded.

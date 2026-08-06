@@ -41,3 +41,11 @@ claims:
     source_tier: project_source
     freshness: active
     artifact_path: films/sable/mission.py
+
+  - claim_id: package-version
+    kind: string
+    value: "0.1.0"
+    source: projects/working/bond/bond-api/pyproject.toml [project] version (single source; the copies in bond_api.__version__, manuscript/config.yaml paper.version, and films/sable _PACKAGE_VERSION are gated together in tests/test_exports.py)
+    source_tier: project_source
+    freshness: active
+    artifact_path: pyproject.toml
