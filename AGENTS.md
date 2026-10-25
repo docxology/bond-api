@@ -25,9 +25,9 @@
    (`tests/test_regeneration_determinism.py`). `PYTHON_VERSION` is the one
    environment-derived token — a different interpreter changes those bytes by
    design.
-7. **Quality gates.** `uv run pytest tests/ --cov=src --cov-fail-under=90`
-   plus `uv run ruff check src/ scripts/ films/` and
-   `uv run mypy src/ scripts/ films/` must all pass.
+7. **Quality gates.** `uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90`
+   plus `uv run --extra dev ruff check src/ scripts/ films/` and
+   `uv run --extra dev mypy src/ scripts/ films/` must all pass.
 8. **A gate must be able to fail.** Any check added here needs an input that
    makes it fail, supplied in a test: inventory scans assert a non-empty scan
    set, always-satisfied validity checks are extracted into callables that a
@@ -87,7 +87,7 @@ Before modifying this project, read in order:
 uv sync --extra dev
 
 # Run one test
-uv run pytest tests/test_capabilities.py::test_fingerprint_is_deterministic -v
+uv run --extra dev pytest tests/test_capabilities.py::test_fingerprint_is_deterministic -v
 
 # Run the package end-to-end without the test suite
 uv run python scripts/00_preflight.py
@@ -103,7 +103,7 @@ sections this package writes to `output/manuscript/`.
 
 ```bash
 # 1. Tests + coverage gate (line + branch on src/; floor from pyproject fail_under)
-uv run pytest tests/ --cov=src --cov-fail-under=90
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
 
 # 2. No mocks in tests/
 grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/ || echo "Clean"
@@ -115,9 +115,9 @@ grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
 rg -n "template[_]code_project" . || echo "Clean"
 
 # 5. Code quality (lint, format, types)
-uv run ruff check src/ scripts/ films/ tests/
-uv run ruff format --check src/ scripts/ films/ tests/
-uv run mypy src/ scripts/ films/
+uv run --extra dev ruff check src/ scripts/ films/ tests/
+uv run --extra dev ruff format --check src/ scripts/ films/ tests/
+uv run --extra dev mypy src/ scripts/ films/
 
 # 6. Manuscript tokens hydrate strictly (an unresolved token exits non-zero)
 uv run python scripts/z_generate_manuscript_variables.py
@@ -139,4 +139,4 @@ the exit code alone.
   `architecture.md` (module-by-module), `testing_philosophy.md` (zero-mock and
   non-vacuous gates)
 - Test counts and measured coverage are never written into these documents.
-  They come from the run: `uv run pytest tests/ --cov=src`.
+  They come from the run: `uv run --extra dev pytest tests/ --cov=src`.

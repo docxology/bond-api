@@ -31,7 +31,7 @@ covering the file.
 
 1. Edit only when source-backed claims change.
 2. Re-run the gate that consumes the ledger:
-   `uv run pytest tests/test_claim_ledger.py -v`.
+   `uv run --extra dev pytest tests/test_claim_ledger.py -v`.
 3. A new row needs a matching entry in that module's `VERIFIERS` map, or the
    coverage check fails.
 4. Do not store generated JSON/CSV/PNG under `data/`.

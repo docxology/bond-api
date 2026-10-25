@@ -131,5 +131,5 @@ round_tripped = from_json(wire, expected=MissionBrief)
 ## Testing
 
 ```bash
-uv run pytest ../tests/ --cov=src --cov-fail-under=90 -v
+uv run --extra dev pytest ../tests/ --cov=src --cov-fail-under=90 -v
 ```

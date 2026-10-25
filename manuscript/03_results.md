@@ -12,7 +12,7 @@ addition or removal of a contract type fails the suite.
 
 The test suite is the conformance evidence for the contract. Test counts and
 measured coverage are not restated here: they are produced by the run itself
-(`uv run pytest tests/ --cov=src`) and the enforced floor is
+(`uv run --extra dev pytest tests/ --cov=src`) and the enforced floor is
 {{BOND_COVERAGE_FLOOR}}% line **and** branch coverage on `src/`, read straight
 from the `fail_under` gate declared in `pyproject.toml` rather than repeated
 in prose.

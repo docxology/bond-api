@@ -30,7 +30,7 @@ The enforced gate is line **and** branch coverage on `src/`, at the floor
 declared in `pyproject.toml` under `[tool.coverage.report] fail_under`:
 
 ```bash
-uv run pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing
 ```
 
 Branch coverage is on (`[tool.coverage.run] branch = true`). Error paths are

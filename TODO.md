@@ -8,7 +8,7 @@ film. The package is published at `github.com/docxology/bond-api`.
 
 Verified state at the Round-2 close (macOS arm64, CPython 3.14): **228 tests
 pass, 100.00% line and branch coverage on `src/`**
-(`uv run pytest tests/ --cov=src --cov-fail-under=90`, enforced floor 90),
+(`uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90`, enforced floor 90),
 `ruff check`, `ruff format --check`, and `mypy src/ scripts/ films/` all clean.
 All six findings from the adversarial audit (`output/verify/bond-api.json`)
 were remediated in `aadd9f8`; the Round-2 pass closed the C1–C4, V1, V2, and
@@ -24,7 +24,8 @@ a whole-second boundary and compares every artifact byte for byte. Before the
 fix two consecutive regenerations hashed `2b1e126c…` and `365114ac…`; after it
 they hash `d29b9acc…` both times.
 
-This file is forward-only: completed items are deleted, not archived.
+This file is forward-only: completed items are pruned as they close; the most
+recent round's record stays below.
 
 ## Open work
 
@@ -54,7 +55,7 @@ running `uv run pytest tests/` green, with `tests/test_golden_determinism.py`
 producing byte-identical goldens on every cell. Until that exists, this stays
 open and the scoped wording stays.
 
-**Command:** `uv run pytest tests/test_golden_determinism.py -v` locally
+**Command:** `uv run --extra dev pytest tests/test_golden_determinism.py -v` locally
 proves one cell only — the closing evidence is the matrix run, not this.
 
 ### Extension
@@ -117,7 +118,7 @@ The gates for this package, with what a pass looks like:
 
 ```bash
 # 1. Tests + the enforced coverage gate (line AND branch on src/, floor 90)
-uv run pytest tests/ --cov=src --cov-fail-under=90
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
 #    → all tests pass; TOTAL coverage ≥ 90.00%. Read the number, not the exit code.
 
 # 2. No mocks anywhere in tests/
@@ -129,9 +130,9 @@ grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
 #    → "Clean"
 
 # 4. Lint, format, types
-uv run ruff check src/ scripts/ films/ tests/     # → All checks passed!
-uv run ruff format --check src/ scripts/ films/ tests/
-uv run mypy src/ scripts/ films/                  # → Success: no issues found
+uv run --extra dev ruff check src/ scripts/ films/ tests/     # → All checks passed!
+uv run --extra dev ruff format --check src/ scripts/ films/ tests/
+uv run --extra dev mypy src/ scripts/ films/                  # → Success: no issues found
 
 # 5. Manuscript tokens hydrate strictly (an unresolved token exits non-zero)
 uv run python scripts/z_generate_manuscript_variables.py
@@ -145,9 +146,12 @@ Steps 1, 4, and 5 are the ones that can actually fail on a bad change.
 
 If `uv` reports `Failed to initialize cache at ~/.cache/uv` you are inside a
 sandbox that cannot write the cache — rerun the same command with the sandbox
-disabled. If you touch `pyproject.toml`, resync with `uv sync --all-extras`; a
-bare `uv sync` prunes pytest and `uv run pytest` then silently resolves a
-different interpreter.
+disabled. `uv run` syncs the default environment, which excludes the `dev`
+extra: a bare `uv run` prunes pytest, ruff, and mypy, so dev tools must be
+invoked as `uv run --extra dev pytest|ruff|mypy ...` (verified with
+`uv sync --dry-run`, which lists them as "would uninstall"). Equivalently,
+`uv sync --extra dev` followed by `UV_NO_SYNC=1 uv run ...` uses the synced
+environment as-is.
 
 ## Standing rules for whoever picks this up
 

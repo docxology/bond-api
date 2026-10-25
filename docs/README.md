@@ -41,7 +41,7 @@ code or the doc is wrong — fix one of them in the same change.
 
 ```bash
 # Tests + the enforced coverage gate (line + branch on src/)
-uv run pytest tests/ --cov=src --cov-fail-under=90 -q
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90 -q
 
 # No mocks in tests/
 grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/ || echo "Clean"
@@ -50,9 +50,9 @@ grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/ || echo "Clea
 grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
 
 # Lint + types
-uv run ruff check src/ scripts/ films/ tests/
-uv run ruff format --check src/ scripts/ films/ tests/
-uv run mypy src/ scripts/ films/
+uv run --extra dev ruff check src/ scripts/ films/ tests/
+uv run --extra dev ruff format --check src/ scripts/ films/ tests/
+uv run --extra dev mypy src/ scripts/ films/
 
 # Manuscript tokens hydrate strictly (an unresolved token exits non-zero)
 uv run python scripts/z_generate_manuscript_variables.py

@@ -6,7 +6,7 @@ for the full operating contract).
 1. **Pure core first.** `protocol.py`, `registry.py`, `discovery.py`,
    `serialization.py` are stdlib-only. `manuscript_variables.py` may use
    `pyyaml` for config parsing and nothing else third-party.
-2. **Type hints + docstrings everywhere.** Mypy-clean (`uv run mypy src/`).
+2. **Type hints + docstrings everywhere.** Mypy-clean (`uv run --extra dev mypy src/`).
 3. **Explicit errors.** Validation raises `ValueError` with actionable
    messages; discovery raises `DiscoveryError`; serialization raises
    `SerializationError`. Never bare `assert` for input validation.
@@ -17,4 +17,4 @@ for the full operating contract).
 6. **Frozen contract.** `protocol.py` field changes are versioned migrations,
    never silent edits.
 7. **Formatting.** Ruff format (88-col default alignment as configured by the
-   template); `uv run ruff check src/` clean.
+   template); `uv run --extra dev ruff check src/` clean.

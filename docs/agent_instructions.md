@@ -48,7 +48,7 @@ pattern to follow.
 ## Rule 2: Coverage Gate — ≥90% on `src/`
 
 ```bash
-uv run pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing -v
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing -v
 ```
 
 If coverage drops, do not delete tests to make the number work — fix the gap.
@@ -142,7 +142,7 @@ Run all of these before submitting any change:
 
 ```bash
 # 1. Tests pass and coverage gate is met
-uv run pytest tests/ --cov=src --cov-fail-under=90 -q
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90 -q
 
 # 2. No mocks anywhere in tests/
 grep -r "unittest.mock\|MagicMock\|@patch\|create_autospec" tests/ || echo "Clean"
@@ -154,8 +154,8 @@ grep -nE "^(from|import) infrastructure" src/bond_api/*.py || echo "Clean"
 rg -n "template[_]code_project" . || echo "Clean"
 
 # 5. Ruff and mypy clean on src/, scripts/, films/
-uv run ruff check src/ scripts/ films/
-uv run mypy src/ scripts/ films/
+uv run --extra dev ruff check src/ scripts/ films/
+uv run --extra dev mypy src/ scripts/ films/
 ```
 
 All must pass (or print the "Clean" marker).

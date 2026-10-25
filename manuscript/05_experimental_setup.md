@@ -35,7 +35,7 @@ The current version is {{BOND_VERSION}}.
 
 ```bash
 cd bond-api
-uv run pytest tests/ --cov=src --cov-fail-under={{BOND_COVERAGE_FLOOR}}
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under={{BOND_COVERAGE_FLOOR}}
 uv run python scripts/00_preflight.py
 uv run python scripts/demo_mission.py
 uv run python scripts/z_generate_manuscript_variables.py

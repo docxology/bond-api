@@ -40,7 +40,7 @@ not decoration — it names the job.
 uv sync --extra dev
 
 # Run the suite (the enforced gate: line + branch coverage on src/)
-uv run pytest tests/ --cov=src --cov-fail-under=90
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
 
 # Verify the environment
 uv run python scripts/00_preflight.py
@@ -52,9 +52,9 @@ uv run python scripts/demo_mission.py
 uv run python scripts/z_generate_manuscript_variables.py
 
 # Code quality (all three must pass)
-uv run ruff check src/ scripts/ films/ tests/
-uv run ruff format --check src/ scripts/ films/ tests/
-uv run mypy src/ scripts/ films/
+uv run --extra dev ruff check src/ scripts/ films/ tests/
+uv run --extra dev ruff format --check src/ scripts/ films/ tests/
+uv run --extra dev mypy src/ scripts/ films/
 ```
 
 Measured coverage and test counts are not quoted here on purpose: they are

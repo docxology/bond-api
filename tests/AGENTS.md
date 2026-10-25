@@ -34,16 +34,16 @@ flowchart LR
 - **Deterministic.** Fixed seeds/inputs; serialization asserts byte equality;
   subprocess smoke asserts stable output lines only.
 - **Coverage.** The gate is ≥90% line + branch on `src/`:
-  `uv run pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing`.
+  `uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90 --cov-report=term-missing`.
 - **Isolation.** Discovery tests use unique slugs per package so
   `sys.modules` caching stays deterministic.
 
 ## Running
 
 ```bash
-uv run pytest tests/ -v
-uv run pytest tests/ --cov=src --cov-fail-under=90
-uv run pytest tests/test_discovery.py -k "autodiscovery" -v
+uv run --extra dev pytest tests/ -v
+uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
+uv run --extra dev pytest tests/test_discovery.py -k "autodiscovery" -v
 ```
 
 See [`../docs/testing_philosophy.md`](../docs/testing_philosophy.md) for the
