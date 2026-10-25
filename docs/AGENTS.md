@@ -49,4 +49,4 @@ package implements. Changes are versioned migrations, never silent edits.
 | `pyproject.toml` `[tool.coverage.report] fail_under` | REQUIRED | The enforced floor **and** the source of the `BOND_COVERAGE_FLOOR` token |
 | `manuscript/references.bib` | REQUIRED | Real, checkable sources only — a citation you cannot verify is removed, never invented |
 | `docs/*.md`, `README.md`, `AGENTS.md`, `TODO.md` | REQUIRED | Must describe the package as it is; drift is a defect, not cosmetics |
-| `STANDALONE.md`, `CITATION.cff`, `.zenodo.json`, `codemeta.json` | AESTHETIC (until publication) | Publication sidecars; no gate consumes them today |
+| `STANDALONE.md`, `CITATION.cff`, `.zenodo.json`, `codemeta.json` | AESTHETIC | Publication sidecars for the published `docxology/bond-api` release; no gate consumes them today |

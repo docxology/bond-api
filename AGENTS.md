@@ -1,14 +1,15 @@
 # BOND-API — Agent Operating Contract
 
 **BOND-API** is the frozen mission protocol contract for the BOND film suite
-(Layer 1, codename *THE PROTOCOL*). This is an active project in the BOND
-suite at `projects/working/bond/bond-api/`.
+(Layer 1, codename *THE PROTOCOL*). The package is published at
+`github.com/docxology/bond-api`.
 
 ## Scope and hard rules
 
 1. **Work only inside this directory.** Never modify sibling bond packages,
    bond root files, or the template repo.
-2. **Local-only working tree.** There is no remote; never push anywhere.
+2. **Published repository.** `origin` is `github.com/docxology/bond-api`;
+   never force-push and never rewrite history.
 3. **The contract is frozen.** `src/bond_api/protocol.py` is the single
    contract every film package implements. Changes require a versioned
    migration — never a silent edit. Do NOT change it casually.
@@ -59,7 +60,7 @@ Nothing imports upward.
 
 ```mermaid
 flowchart TB
-    P[projects/working/bond/bond-api]
+    P[bond-api repository root]
     P --> SRC[src/bond_api<br/>protocol · serialization · discovery ·<br/>registry · capabilities · manuscript_variables]
     P --> F[films/sable<br/>reference film · mission.py]
     P --> SC[scripts<br/>00_preflight · demo_mission · z_generate_manuscript_variables]

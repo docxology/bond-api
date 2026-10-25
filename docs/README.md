@@ -1,6 +1,6 @@
 # docs/ — Agent-Facing Documentation Hub
 
-Technical guide for `projects/working/bond/bond-api/docs/` — the operational
+Technical guide for this repository's `docs/` — the operational
 rulebook for agents and developers working inside BOND-API, the frozen mission
 protocol contract (Layer 1 of the BOND suite, codename *THE PROTOCOL*).
 

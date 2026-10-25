@@ -92,6 +92,8 @@ them together rather than trusting convention:
 | `test_scripts_smoke.py` | Real subprocess runs of `scripts/` (preflight, demo mission, token hydration) plus the `ast` thin-orchestrator gate |
 | `test_golden_determinism.py` | Literal golden wire text and SHA-256 digests, plus a fresh-interpreter re-derivation under a randomized hash seed |
 | `test_claim_ledger.py` | Re-derives every `data/claim_ledger.yaml` row from its cited source of truth; fails on a row with no verifier |
+| `test_exports.py` | Exercises `bond_api.__all__` via `getattr`, and gates the four package-version copies to agree |
+| `test_regeneration_determinism.py` | Runs the real manuscript generator twice across a whole-second boundary and byte-compares every artifact |
 
 ## Determinism
 

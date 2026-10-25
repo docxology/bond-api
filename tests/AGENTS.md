@@ -20,6 +20,10 @@ flowchart LR
     T --> TD[test_discovery.py<br/>Slug loading · binding · autodiscovery]
     T --> TMV[test_manuscript_variables.py<br/>Token map · live cross-reference gate]
     T --> TSS[test_scripts_smoke.py<br/>Real subprocess runs of scripts/]
+    T --> TGD[test_golden_determinism.py<br/>Literal goldens · fresh-interpreter re-derivation]
+    T --> TRD[test_regeneration_determinism.py<br/>Byte-identical regeneration across a second boundary]
+    T --> TCL[test_claim_ledger.py<br/>Ledger rows re-derived from live sources]
+    T --> TE[test_exports.py<br/>__all__ resolution · version copies]
 ```
 
 ## Conventions

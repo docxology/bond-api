@@ -2,42 +2,42 @@ claims:
   - claim_id: protocol-dataclass-count
     kind: number
     value: 11
-    source: projects/working/bond/bond-api/src/bond_api/protocol.py frozen dataclasses (protocol_surface)
+    source: src/bond_api/protocol.py frozen dataclasses (protocol_surface)
     source_tier: project_source
     freshness: active
     artifact_path: src/bond_api/protocol.py
   - claim_id: provider-stage-count
     kind: number
     value: 5
-    source: projects/working/bond/bond-api/src/bond_api/protocol.py MISSION_FLOW
+    source: src/bond_api/protocol.py MISSION_FLOW
     source_tier: project_source
     freshness: active
     artifact_path: src/bond_api/protocol.py
   - claim_id: capability-helper-count
     kind: number
     value: 9
-    source: projects/working/bond/bond-api/src/bond_api/capabilities.py CAPABILITY_NAMES
+    source: src/bond_api/capabilities.py CAPABILITY_NAMES
     source_tier: project_source
     freshness: active
     artifact_path: src/bond_api/capabilities.py
   - claim_id: coverage-floor
     kind: number
     value: 90
-    source: projects/working/bond/bond-api/pyproject.toml [tool.coverage.report] fail_under
+    source: pyproject.toml [tool.coverage.report] fail_under
     source_tier: project_source
     freshness: active
     artifact_path: pyproject.toml
   - claim_id: serialization-type-tag
     kind: string
     value: "__bond_type__"
-    source: projects/working/bond/bond-api/src/bond_api/serialization.py wire-format tag
+    source: src/bond_api/serialization.py wire-format tag
     source_tier: project_source
     freshness: active
     artifact_path: src/bond_api/serialization.py
   - claim_id: reference-film-slug
     kind: string
     value: "sable"
-    source: projects/working/bond/bond-api/films/sable/mission.py MissionProvider.film
+    source: films/sable/mission.py MissionProvider.film
     source_tier: project_source
     freshness: active
     artifact_path: films/sable/mission.py
@@ -45,7 +45,7 @@ claims:
   - claim_id: package-version
     kind: string
     value: "0.1.0"
-    source: projects/working/bond/bond-api/pyproject.toml [project] version (single source; the copies in bond_api.__version__, manuscript/config.yaml paper.version, and films/sable _PACKAGE_VERSION are gated together in tests/test_exports.py)
+    source: pyproject.toml [project] version (single source; the copies in bond_api.__version__, manuscript/config.yaml paper.version, and films/sable _PACKAGE_VERSION are gated together in tests/test_exports.py)
     source_tier: project_source
     freshness: active
     artifact_path: pyproject.toml

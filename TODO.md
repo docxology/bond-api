@@ -4,13 +4,16 @@ BOND-API is Layer 1 of the BOND suite: the frozen mission protocol contract
 (11 dataclasses, the `MissionProvider` structural contract, `run_mission`) plus
 the machinery every coordinator needs — tagged deterministic JSON, slug-based
 film discovery, two registries, capability helpers, and the `sable` reference
-film. Verified state as of the run recorded below (macOS arm64, CPython
-3.14.6): **211 tests pass, 100.00% line and branch coverage on `src/`**
+film. The package is published at `github.com/docxology/bond-api`.
+
+Verified state at the Round-2 close (macOS arm64, CPython 3.14): **228 tests
+pass, 100.00% line and branch coverage on `src/`**
 (`uv run pytest tests/ --cov=src --cov-fail-under=90`, enforced floor 90),
-`ruff check` and `mypy src/ scripts/ films/` both clean. All six findings from
-the adversarial audit (`output/verify/bond-api.json`) were remediated in
-`aadd9f8`; what remains below is what that pass could not close plus what
-reading the code this session turned up.
+`ruff check`, `ruff format --check`, and `mypy src/ scripts/ films/` all clean.
+All six findings from the adversarial audit (`output/verify/bond-api.json`)
+were remediated in `aadd9f8`; the Round-2 pass closed the C1–C4, V1, V2, and
+D1 backlog items (recorded below). What remains open is V3 and the extension
+table.
 
 The reproducibility section's byte-identity claim is now true and bound:
 `generate_variables()` no longer reads a wall clock (the old
@@ -25,150 +28,7 @@ This file is forward-only: completed items are deleted, not archived.
 
 ## Open work
 
-### Correctness
-
-#### C1 — `to_json` emits tokens that are not valid JSON
-
-`src/bond_api/serialization.py:158` calls
-`json.dumps(_encode(obj), sort_keys=True, indent=2)` with `json.dumps`'
-default `allow_nan=True`. A non-finite float anywhere in a payload is written
-as the bare literals `Infinity`, `-Infinity`, or `NaN`, which RFC 8259 does
-not define. Python's own `json.loads` accepts them, so nothing in this package
-notices.
-
-Reproduced live this session:
-
-```
-to_json(Asset(kind='k', name='n', payload={'x': float('inf'), 'y': float('nan')}))
-  → ...  "payload": { "x": Infinity, "y": NaN }
-json.loads(text, parse_constant=<raiser>)  → ValueError: Infinity
-```
-
-`Provenance` admits the same value: `_require_number` at
-`src/bond_api/protocol.py:76` tests `value >= minimum`, and `inf >= 0.0` is
-True, so `Provenance(..., wall_time_s=float('inf'))` constructs and serializes.
-(NaN is rejected there only incidentally, because `nan >= 0.0` is False.)
-
-This falsifies four live claims:
-`src/bond_api/serialization.py:5` ("plain JSON, so any language can consume
-it"), `docs/architecture.md:65-66` ("No pickling anywhere, so other languages
-can consume the format"), `manuscript/02_methodology.md:82` ("Protocol objects
-serialize to plain JSON"), against a manuscript that cites RFC 8259 at
-`manuscript/99_references.md:17`.
-
-**Done looks like:** `_encode` raises `SerializationError` naming the offending
-float on `inf`, `-inf`, and `nan`, with tests feeding each through both
-`Asset.payload` and `Provenance.wall_time_s`. Decide explicitly whether
-tightening `Provenance.wall_time_s` to finite-only is a versioned migration
-(it rejects a value that constructs today) or whether only the serializer
-tightens and the docstring keeps the honest scope. Do not close this by
-softening the prose alone while the wire format still emits `NaN`.
-
-**Command:** `uv run pytest tests/test_serialization.py -v` (new cases must
-fail before the fix — verify that first).
-
-#### C2 — the decoder is looser than the encoder on the reserved key
-
-`_encode` rejects any dict containing `__bond_type__`
-(`src/bond_api/serialization.py:79-86`, the remediation for audit finding 2).
-`_decode` does not mirror it: `src/bond_api/serialization.py:115-116` reads
-`tag = value.get(_TYPE_TAG)` and only treats the key as a tag when
-`tag is not None`. A `null` tag therefore falls through to the plain-dict
-branch.
-
-Reproduced live this session:
-
-```
-from_json('{"__bond_type__": null, "a": 1}')  → {'__bond_type__': None, 'a': 1}
-to_json(that)                                 → SerializationError
-```
-
-So `to_json(from_json(doc))` is not total over documents `from_json` accepts,
-and a foreign producer that emits a null tag gets a silently untagged dict
-back instead of an error. Every other bad tag value is already loud: `""` and
-`0` reach `_KNOWN_TYPES.get(tag)` at line 127 and raise `unknown bond type`.
-`null` is the single hole.
-
-**Done looks like:** `_decode` raises `SerializationError` when `_TYPE_TAG` is
-present with any value that is not a known string tag, with a test covering
-`null`, `false`, `0`, and `[]` as tag values, and a test asserting
-`to_json(from_json(doc))` succeeds for every document `from_json` accepts.
-
-**Command:** `uv run pytest tests/test_serialization.py -v`
-
-#### C3 — the package version is stated four times with no gate binding them
-
-`0.1.0` is hand-written at:
-
-- `pyproject.toml:10` — `[project] version`
-- `src/bond_api/__init__.py:58` — `__version__`
-- `manuscript/config.yaml:11` — `paper.version` (becomes `{{BOND_VERSION}}`)
-- `films/sable/mission.py:30` — `_PACKAGE_VERSION`, stamped into every
-  `Provenance.package_version` the reference film emits
-
-The only binding is `tests/test_manuscript_variables.py:34`, which pins the
-config value to the string literal `"0.1.0"` — it binds config to the test,
-not the copies to each other. A version bump is five coordinated edits; miss
-`films/sable/mission.py:30` and the reference film stamps stale provenance on
-every outcome while the suite stays green. The package already has the right
-mechanism for this: `data/claim_ledger.yaml` + `tests/test_claim_ledger.py`,
-whose `coverage-floor` row already re-derives a value out of `pyproject.toml`.
-
-**Done looks like:** one source of truth (read `pyproject.toml`, or make
-`films/sable` and `manuscript/config.yaml` consume `bond_api.__version__`),
-plus a `package-version` row in `data/claim_ledger.yaml` with a verifier in
-`VERIFIERS` — so a drifted copy fails `test_ledger_row_matches_live_source_of_truth`.
-Prove it by editing one copy to `0.1.1` and watching the suite go red before
-reverting.
-
-**Command:** `uv run pytest tests/test_claim_ledger.py -v`
-
-#### C4 — mypy checks against a Python version the package neither floors nor runs
-
-`pyproject.toml:66` sets `python_version = "3.12"`, while
-`pyproject.toml:16` declares `requires-python = ">=3.10"` and the suite here
-runs on 3.14.6. Syntax or stdlib usage that is valid on 3.12 but absent on
-3.10 type-checks clean and would fail at import on the declared floor.
-
-**Done looks like:** `python_version` matches the supported floor (`"3.10"`),
-and `uv run mypy src/ scripts/ films/` still reports success — or the floor is
-raised to 3.12 in `requires-python` if the 3.10/3.11 support claim is being
-dropped. Pick one; do not leave the two numbers disagreeing.
-
-**Command:** `uv run mypy src/ scripts/ films/`
-
 ### Verification
-
-#### V1 — `test_output_is_valid_json` does not test JSON validity
-
-`tests/test_serialization.py:125-128` asserts
-`json.loads(text)["success"] is True`. Python's parser accepts `NaN` and
-`Infinity`, so this test passes on output no strict RFC 8259 parser can read.
-It is the hollow half of C1: the name claims interoperability, the assertion
-checks only that Python can read what Python wrote.
-
-**Done looks like:** the test parses with a `parse_constant` callback that
-raises, so any non-finite token fails here, and a fixture containing a
-non-finite float makes it go red before C1 is fixed.
-
-**Command:** `uv run pytest tests/test_serialization.py::test_output_is_valid_json -v`
-
-#### V2 — `bond_api.__all__` is never exercised
-
-`src/bond_api/__init__.py:64-110` publishes 30 names as the package's
-top-level surface. Coverage omits the file entirely
-(`pyproject.toml` `[tool.coverage.run] omit = [..., "*/__init__.py"]`), so the
-100% figure above says nothing about it, and no test in `tests/` performs
-`from bond_api import *` or compares `__all__` against `dir(bond_api)`
-(grepped this session — zero hits for `__all__` under `tests/`). A name listed
-in `__all__` with no corresponding binding — a typo, or an export removed from
-a submodule — fails no gate in this package.
-
-**Done looks like:** a test asserting every name in `bond_api.__all__` resolves
-via `getattr(bond_api, name)`, plus `len(__all__) > 0` so the loop cannot pass
-by iterating nothing. Prove it fires by temporarily appending a bogus name.
-
-**Command:** `uv run pytest tests/ -k exports -v`
 
 #### V3 — platform and Python-version matrix (blocked: needs CI outside this package)
 
@@ -196,24 +56,6 @@ open and the scoped wording stays.
 
 **Command:** `uv run pytest tests/test_golden_determinism.py -v` locally
 proves one cell only — the closing evidence is the matrix run, not this.
-
-### Documentation
-
-#### D1 — `pyproject.toml:52` points coverage at a file that does not track this package
-
-The `[tool.coverage.report]` comment says the live coverage percentage "is
-tracked in `docs/_generated/COUNTS.md`". That file lives at the monorepo root
-and contains zero occurrences of `bond` (grepped this session) — bond-api is a
-local-only `projects/working/` package and is outside the public roster
-COUNTS.md is generated from. The pointer sends a reader to a file that will
-never mention this package.
-
-**Done looks like:** the comment names the real source (the suite run itself)
-or is deleted; `fail_under = 90` stays, since that is the value the manuscript
-token actually reads via `read_coverage_floor`.
-
-**Command:** `grep -n "COUNTS" pyproject.toml` returns nothing, and
-`uv run pytest tests/test_manuscript_variables.py -v` still passes.
 
 ### Extension
 

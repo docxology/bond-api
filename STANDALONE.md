@@ -5,10 +5,9 @@
 BOND-API — the frozen mission protocol contract for the BOND film suite
 (Layer 1, codename *THE PROTOCOL*). Version `0.1.0`.
 
-This is a **local-only working tree** inside the BOND monorepo staging area.
-There is no remote; do not push anywhere. When the suite is published, this
-package ships as `docxology/bond-api` with citation sidecars
-(`CITATION.cff`, `.zenodo.json`, `codemeta.json`) already in place.
+This package ships as `docxology/bond-api` — the canonical `origin` — with
+citation sidecars (`CITATION.cff`, `.zenodo.json`, `codemeta.json`) in place.
+Push to `origin`; never force-push and never rewrite history.
 
 ## Lineage
 

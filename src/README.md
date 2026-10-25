@@ -9,6 +9,7 @@ film suite.
 | `discovery.py` | Slug-based film discovery on `sys.path` |
 | `registry.py` | `GadgetRegistry` + `MissionRegistry` |
 | `serialization.py` | Deterministic JSON round-trips |
+| `capabilities.py` | Brief/plan validation, provenance hashing, debrief normalization |
 | `manuscript_variables.py` | Token hydration from `manuscript/config.yaml` |
 
 See [`AGENTS.md`](AGENTS.md) for the full API reference and rules.

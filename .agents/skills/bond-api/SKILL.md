@@ -9,8 +9,8 @@ tags: [bond, protocol, frozen-contract, discovery, serialization]
 
 # bond-api
 
-Project-scoped skill for the BOND-API protocol package at
-`projects/working/bond/bond-api/`. Load this when working inside the project.
+Project-scoped skill for the BOND-API protocol package (published as
+`docxology/bond-api`). Load this when working inside the project.
 
 ## When to Use
 
