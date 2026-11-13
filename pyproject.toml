@@ -61,7 +61,7 @@ exclude_lines = [
 [tool.mypy]
 # Project-local mypy settings for this package's src/ layout: strict-ish
 # typing, explicit package bases, ignore missing stubs.
-python_version = "3.10"
+python_version = "3.11"
 mypy_path = ["src"]
 explicit_package_bases = true
 warn_return_any = true
