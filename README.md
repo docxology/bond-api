@@ -5,6 +5,27 @@ single contract every film package implements and every coordinator consumes.
 This package freezes that contract so the 27 film agents code against a
 stable, tested surface instead of a moving one.
 
+## Protocol flow
+
+```mermaid
+flowchart TD
+    accTitle: bond-api frozen MissionProvider protocol and discovery flow
+    accDescr: Caller inputs including film slug, search paths, ReconRequest or tagged JSON enter discovery.py and registry.py to locate a MissionProvider on sys.path and index its GadgetRegistry, protocol.py and capabilities.py to validate the 11 frozen dataclasses and five-stage run_mission lifecycle, and serialization.py for deterministic JSON round-trips, yielding verified mission artifacts.
+    I["Caller inputs: film slug, search paths, ReconRequest or tagged JSON"]
+    G0["discovery.py and registry.py<br/>Validate slug, load MissionProvider on sys.path and index GadgetRegistry"]
+    G1["protocol.py and capabilities.py<br/>11 frozen lifecycle dataclasses, run_mission 5-stage driver and brief/step guards"]
+    G2["serialization.py<br/>Deterministic tagged JSON round-trips (to_json and from_json)"]
+    O["Verified MissionBrief, ReconReport, MissionPlan, MissionOutcome and Debrief"]
+
+    I --> G0
+    G0 --> G1
+    I --> G2
+    G1 --> O
+    G2 --> O
+```
+
+**Source map:** [`protocol.py`](src/bond_api/protocol.py), [`discovery.py`](src/bond_api/discovery.py), [`registry.py`](src/bond_api/registry.py), [`capabilities.py`](src/bond_api/capabilities.py), [`serialization.py`](src/bond_api/serialization.py), [`films/sable/mission.py`](films/sable/mission.py).
+
 ## Film → concept mapping
 
 The BOND suite gives each package a film and a codename, and the mapping is
