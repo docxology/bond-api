@@ -33,9 +33,9 @@
    set, always-satisfied validity checks are extracted into callables that a
    test can feed invalid input, and structural claims about code are made with
    `ast`, not substring greps. See `docs/testing_philosophy.md`.
-9. **Manuscript variables are injected.** `manuscript/*.md` tokens resolve
+9. **Manuscript variables are injected.** `docs/manuscript/*.md` tokens resolve
    through `src/bond_api/manuscript_variables.py::generate_variables()` from
-   `manuscript/config.yaml` + the live protocol surface — never hand-author
+   `docs/manuscript/config.yaml` + the live protocol surface — never hand-author
    metrics in prose. `scripts/z_generate_manuscript_variables.py` is strict by
    default (unresolved tokens fail).
 
@@ -48,7 +48,7 @@
 | `src/bond_api/discovery.py` | Slug-based discovery on `sys.path` — pure (importlib) |
 | `src/bond_api/serialization.py` | Tagged JSON round-trips — pure |
 | `src/bond_api/capabilities.py` | Soft brief validation, plan schema checks, provenance hashing, debrief normalization — pure (stdlib + `serialization`) |
-| `src/bond_api/manuscript_variables.py` | Reads `manuscript/config.yaml` (pyyaml) + the `fail_under` gate in `pyproject.toml`; owns `require_surface` and strict tree resolution |
+| `src/bond_api/manuscript_variables.py` | Reads `docs/manuscript/config.yaml` (pyyaml) + the `fail_under` gate in `pyproject.toml`; owns `require_surface` and strict tree resolution |
 | `films/<slug>/mission.py` | Film implementations of the contract (external) |
 | `scripts/` | Thin orchestrators; may add paths and call `src/` only |
 | `tests/` | Zero-mock; exercises `src/` and real films |
@@ -133,8 +133,8 @@ the exit code alone.
 ## See also
 
 - [`README.md`](README.md) — human quickstart, module map, and the
-  `MissionProvider` surface · [`TODO.md`](TODO.md) — backlog and integration
-  points · [`STANDALONE.md`](STANDALONE.md) — publication/lift guide
+  `MissionProvider` surface · [`TODO.md`](docs/TODO.md) — backlog and integration
+  points · [`STANDALONE.md`](docs/standalone.md) — publication/lift guide
 - [`docs/`](docs/) — `agent_instructions.md` (seven rules + token map),
   `architecture.md` (module-by-module), `testing_philosophy.md` (zero-mock and
   non-vacuous gates)

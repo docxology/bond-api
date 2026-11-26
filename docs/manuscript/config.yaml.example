@@ -1,7 +1,7 @@
 # BOND-API Configuration — reference copy for new projects
 # Copy to config.yaml and edit. Loaded by
 # src/bond_api/manuscript_variables.py::load_manuscript_config and hydrated
-# into {{TOKEN}}s by scripts/z_generate_manuscript_variables.py.
+# into manuscript tokens by scripts/z_generate_manuscript_variables.py.
 
 paper:
   # RASP Standard: Title must be descriptive and objective

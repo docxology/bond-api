@@ -23,16 +23,4 @@ scaffold commit).
   with `to_json`/`from_json`.
 - The protocol is frozen: change it only through a versioned migration.
 
-## Local verification
-
-```bash
-uv sync --extra dev
-uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
-uv run --extra dev ruff check src/ scripts/ films/
-uv run --extra dev mypy src/ scripts/ films/
-uv run python scripts/00_preflight.py
-uv run python scripts/demo_mission.py
-```
-
-See [`README.md`](README.md) and [`AGENTS.md`](AGENTS.md) for the full
-operating contract.
+Use the [runbook](runbook.md) to verify this package and build its manuscript.

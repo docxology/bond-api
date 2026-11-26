@@ -1,7 +1,7 @@
 # BOND-API Configuration — the frozen mission protocol contract for the BOND film suite
 # This file is the meta-artifact linking manuscript prose to the execution layer.
 # It is loaded by `src/bond_api/manuscript_variables.py::load_manuscript_config`
-# and hydrated into `{{TOKEN}}`s by `scripts/z_generate_manuscript_variables.py`.
+# and hydrated into manuscript tokens by `scripts/z_generate_manuscript_variables.py`.
 
 # Consumed by: `src/bond_api/manuscript_variables.py` and rendering tooling
 paper:
@@ -9,10 +9,10 @@ paper:
   title: "BOND-API: The Frozen Mission Protocol Contract for the BOND Film Suite"
   subtitle: "Layer 1 — protocol, discovery, registry, and serialization"
   version: "0.1.0"
-  # Load-bearing: hydrates {{BOND_MANUSCRIPT_DATE}}. This is deliberately a
+  # Load-bearing: hydrates the BOND_MANUSCRIPT_DATE token. This is deliberately a
   # committed calendar date and NOT a clock read — `generate_variables()` reads
   # no wall clock, which is what makes regenerating `output/` byte-identical
-  # (see `manuscript/06_reproducibility.md`). Validated by
+  # (see `docs/manuscript/06_reproducibility.md`). Validated by
   # `require_manuscript_date`: a missing or timestamp-shaped value is an error.
   date: "2026-08-04"
 

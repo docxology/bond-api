@@ -37,7 +37,7 @@ Both artifacts above are byte-identical across repeated regeneration on one
 interpreter: running `scripts/z_generate_manuscript_variables.py` twice writes
 the same bytes, no matter how much time passes between the runs. This holds
 because `generate_variables()` reads **no wall clock**. Every token resolves
-from a committed source — the live package surface, `manuscript/config.yaml`,
+from a committed source — the live package surface, `docs/manuscript/config.yaml`,
 or the `fail_under` gate in `pyproject.toml`. The manuscript date is
 `paper.date` from the config, a value that changes in a diff rather than on
 every run.
@@ -62,7 +62,7 @@ it cannot pass by scanning for something it would never find.
 
 ## Token hydration
 
-Every token in `manuscript/*.md` resolves through
+Every token in `docs/manuscript/*.md` resolves through
 `src/bond_api/manuscript_variables.py::generate_variables()`, which reads
 its sources of truth — live code, configuration, and gate declarations —
 and never a hand-typed value:
@@ -70,10 +70,10 @@ and never a hand-typed value:
 | Token group | Source of truth |
 |---|---|
 | Identity, surface inventory, capability list | the live package (`protocol_surface()`, `CAPABILITY_NAMES`) |
-| Version, title, subtitle, reference film, film count | `manuscript/config.yaml` |
+| Version, title, subtitle, reference film, film count | `docs/manuscript/config.yaml` |
 | Wire-format tag | `bond_api.serialization.SERIALIZATION_TAG` |
 | Coverage floor | the `fail_under` gate in `pyproject.toml` |
-| Manuscript date | `manuscript/config.yaml` → `paper.date` (committed, never a clock read) |
+| Manuscript date | `docs/manuscript/config.yaml` → `paper.date` (committed, never a clock read) |
 | Python version | the running interpreter |
 
 Deriving the coverage floor from `pyproject.toml` rather than from prose or

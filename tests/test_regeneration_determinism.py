@@ -1,11 +1,11 @@
 """Bind the byte-identical-regeneration claim to the real generator.
 
-``manuscript/06_reproducibility.md``, ``README.md`` and ``AGENTS.md`` all state
+``docs/manuscript/06_reproducibility.md``, ``README.md`` and ``AGENTS.md`` all state
 that regenerating ``output/`` twice on one interpreter writes identical bytes.
 Nothing enforced that until this module existed, and the claim was in fact
 false: ``generate_variables`` carried a ``GENERATION_TIMESTAMP`` token read
 from ``datetime.now(timezone.utc)``, which was substituted into
-``manuscript/05_experimental_setup.md`` and written into
+``docs/manuscript/05_experimental_setup.md`` and written into
 ``output/data/manuscript_variables.json``. Every regeneration produced
 different bytes.
 
@@ -149,7 +149,7 @@ def test_generator_module_reads_no_wall_clock() -> None:
     sites = wall_clock_call_sites(GENERATOR_MODULE.read_text(encoding="utf-8"))
     assert sites == [], (
         f"{GENERATOR_MODULE.name} reads the wall clock at {sites}; that makes every regeneration "
-        "of output/ differ and falsifies the byte-identity claim in manuscript/06_reproducibility.md"
+        "of output/ differ and falsifies the byte-identity claim in docs/manuscript/06_reproducibility.md"
     )
 
 

@@ -122,7 +122,7 @@ round_tripped = from_json(wire, expected=MissionBrief)
 ### manuscript_variables.py
 
 - `load_manuscript_config(config_path=None) -> dict` — validates
-  `manuscript/config.yaml`.
+  `docs/manuscript/config.yaml`.
 - `generate_variables(*, config_path=None, require_outputs=True) -> dict[str, str]` —
   the `{{TOKEN}}` map (config + protocol surface).
 - `resolve_manuscript_tree(variables, *, manuscript_dir=None, output_dir=None, strict=True)` —

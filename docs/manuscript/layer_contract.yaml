@@ -1,5 +1,5 @@
 # BOND-API layer contract — enforced by scripts/audit/check_template_drift.py --strict
-# and manuscript/layer_contract.yaml conventions.
+# and docs/manuscript/layer_contract.yaml conventions.
 #
 # The dependency arrow is one-directional: scripts/ → src/; tests/ → src/ + films/.
 # Nothing imports upward.
@@ -28,7 +28,7 @@ surfaces:
   - path: src/bond_api/manuscript_variables.py
     role: config_adapter
     rules:
-      - "pyyaml for manuscript/config.yaml only"
+      - "pyyaml for docs/manuscript/config.yaml only"
       - "token maps derive from config + protocol_surface(), never hardcoded metrics"
   - path: films/
     role: external_implementations
