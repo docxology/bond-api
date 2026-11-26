@@ -14,7 +14,7 @@ validation_gates:
   - discovery_conformance
 figure_types: []
 citation_policy: official_or_scholarly
-source_policy: "Prefer primary project outputs: src/bond_api/, films/, tests/, and manuscript/config.yaml."
+source_policy: "Prefer primary project outputs: src/bond_api/, films/, tests/, and docs/manuscript/config.yaml."
 review_gates:
   - coverage_floor
   - zero_mock

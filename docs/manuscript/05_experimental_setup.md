@@ -16,7 +16,7 @@
 
 ## Configuration
 
-Protocol parameters live in `manuscript/config.yaml` under `protocol:`
+Protocol parameters live in `docs/manuscript/config.yaml` under `protocol:`
 (identity, codename, reference film slug, serialization tag). Token variables
 inject them into this manuscript — metrics are never hand-authored in prose.
 The current version is {{BOND_VERSION}}.
@@ -24,10 +24,10 @@ The current version is {{BOND_VERSION}}.
 ## Environment
 
 - Python: {{PYTHON_VERSION}} (the interpreter that generated this text)
-- Manuscript date: {{BOND_MANUSCRIPT_DATE}} — read from `manuscript/config.yaml`
+- Manuscript date: {{BOND_MANUSCRIPT_DATE}} — read from `docs/manuscript/config.yaml`
   → `paper.date`, a committed value, not a clock read. The generator reads no
   wall clock at all, so regenerating `output/` twice produces byte-identical
-  files; see `manuscript/06_reproducibility.md`.
+  files; see `docs/manuscript/06_reproducibility.md`.
 - Only external runtime dependency: `pyyaml` (manuscript config parsing); the
   protocol core is stdlib-only.
 

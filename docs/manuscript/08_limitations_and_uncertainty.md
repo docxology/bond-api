@@ -87,7 +87,7 @@ timing-measurement granularity caveats the measuring package documents
 ## Versioning uncertainty
 
 The package version {{BOND_VERSION}} is declared in four places
-(`pyproject.toml`, `bond_api.__version__`, `manuscript/config.yaml` →
+(`pyproject.toml`, `bond_api.__version__`, `docs/manuscript/config.yaml` →
 `paper.version`, and the reference film's provenance stamp). All four are
 gated to agree by `tests/test_exports.py`, so a bump edited in only one place
 fails the suite instead of silently shipping stale metadata. The gate makes

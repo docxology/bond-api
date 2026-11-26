@@ -1,7 +1,7 @@
 """Manuscript variable hydration for BOND-API.
 
-Every ``{{TOKEN}}`` in ``manuscript/*.md`` resolves through
-:func:`generate_variables`, which reads ``manuscript/config.yaml`` plus the
+Every ``{{TOKEN}}`` in ``docs/manuscript/*.md`` resolves through
+:func:`generate_variables`, which reads ``docs/manuscript/config.yaml`` plus the
 frozen protocol surface. Metrics are never hand-authored in prose: they flow
 through this module so the manuscript cannot drift from the code.
 
@@ -10,12 +10,12 @@ The consuming orchestrator is ``scripts/z_generate_manuscript_variables.py``
 ``tests/test_manuscript_variables.py``.
 
 **No wall clock.** Every value here comes from a committed source — the live
-package, ``manuscript/config.yaml``, ``pyproject.toml``, or the running
+package, ``docs/manuscript/config.yaml``, ``pyproject.toml``, or the running
 interpreter — so two runs of the generator write byte-identical artifacts.
 The manuscript date is read from ``paper.date`` in the config (a committed
 value that changes by edit, in a diff) rather than from ``datetime.now``:
 a clock read here would make ``output/`` differ on every regeneration and
-falsify the determinism claim in ``manuscript/06_reproducibility.md``.
+falsify the determinism claim in ``docs/manuscript/06_reproducibility.md``.
 ``tests/test_regeneration_determinism.py`` binds that byte-identity by
 running the generator twice across a whole-second boundary.
 """
@@ -43,7 +43,8 @@ __all__ = [
 ]
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG_PATH = PACKAGE_ROOT / "manuscript" / "config.yaml"
+DEFAULT_MANUSCRIPT_DIR = PACKAGE_ROOT / "docs" / "manuscript"
+DEFAULT_CONFIG_PATH = DEFAULT_MANUSCRIPT_DIR / "config.yaml"
 DEFAULT_PYPROJECT_PATH = PACKAGE_ROOT / "pyproject.toml"
 
 _TOKEN_RE = re.compile(r"\{\{[A-Z0-9_]+\}\}")
@@ -54,7 +55,7 @@ _ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_manuscript_config(config_path: str | Path | None = None) -> dict[str, Any]:
-    """Load and validate ``manuscript/config.yaml`` (or an explicit path)."""
+    """Load and validate ``docs/manuscript/config.yaml`` (or an explicit path)."""
     path = Path(config_path) if config_path is not None else DEFAULT_CONFIG_PATH
     if not path.is_file():
         raise FileNotFoundError(f"manuscript config not found: {path}")
@@ -127,7 +128,7 @@ def generate_variables(
     """Compute the ``{{TOKEN}}`` → value mapping for the manuscript.
 
     Args:
-        config_path: Override for ``manuscript/config.yaml``.
+        config_path: Override for ``docs/manuscript/config.yaml``.
         pyproject_path: Override for ``pyproject.toml`` (coverage-floor token).
         require_outputs: When True (default), verify the protocol surface is
             non-empty — the strict-mode gate that replaced the exemplar's
@@ -182,7 +183,7 @@ def resolve_manuscript_tree(
 
     Returns the output directory and the sorted list of resolved file names.
     """
-    manuscript_dir = Path(manuscript_dir) if manuscript_dir is not None else PACKAGE_ROOT / "manuscript"
+    manuscript_dir = Path(manuscript_dir) if manuscript_dir is not None else DEFAULT_MANUSCRIPT_DIR
     output_dir = Path(output_dir) if output_dir is not None else PACKAGE_ROOT / "output" / "manuscript"
     resolved: list[str] = []
     for source in sorted(manuscript_dir.glob("[0-9][0-9]_*.md")):

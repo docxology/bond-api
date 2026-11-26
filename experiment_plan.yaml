@@ -5,6 +5,9 @@ conditions:
   - name: discovered_provider
     role: proposed
     description: "Any film package discovered by slug convention on sys.path must satisfy the same contract."
+  - name: plain_json_payload
+    role: variant
+    description: "The accepted-document closure test re-encodes plain JSON objects, arrays, and primitives as well as tagged protocol data."
 metrics:
   primary:
     name: round_trip_fidelity

@@ -4,10 +4,10 @@ type: "manuscript_guide"
 version: "0.1.0"
 ---
 
-# Manuscript (`manuscript/`)
+# Manuscript (`docs/manuscript/`)
 
 Repository-wide agent rules live in
-[`../docs/agent_instructions.md`](../docs/agent_instructions.md). This file
+[`../docs/agent_instructions.md`](../agent_instructions.md). This file
 covers **manuscript-specific** editing: file roles, the token protocol, and
 the section modification workflow.
 
@@ -43,7 +43,7 @@ the protocol surface changes is the primary cause of inaccurate manuscripts.
 
 1. `scripts/z_generate_manuscript_variables.py` calls
    `src/bond_api/manuscript_variables.py::generate_variables()`.
-2. `generate_variables()` reads `manuscript/config.yaml` + the live protocol
+2. `generate_variables()` reads `docs/manuscript/config.yaml` + the live protocol
    surface (`protocol_surface()`).
 3. The script writes `output/data/manuscript_variables.json` and resolves
    every `NN_*.md` section into `output/manuscript/` (strict by default:
@@ -59,14 +59,14 @@ the protocol surface changes is the primary cause of inaccurate manuscripts.
 **Detecting unresolved tokens** (before rendering):
 
 ```bash
-rg -n "\{\{[A-Z0-9_]+\}\}" manuscript/[0-9][0-9]_*.md \
+rg -n "\{\{[A-Z0-9_]+\}\}" docs/manuscript/[0-9][0-9]_*.md \
   && echo "UNRESOLVED TOKENS — re-run z_generate_manuscript_variables.py" \
   || echo "All tokens resolved"
 ```
 
 ## Section Modification Protocol
 
-1. Update the source of truth first (`src/` code or `manuscript/config.yaml`).
+1. Update the source of truth first (`src/` code or `docs/manuscript/config.yaml`).
 2. Update the relevant section prose, using tokens for any value that comes
    from code or config.
 3. Re-run `scripts/z_generate_manuscript_variables.py` (strict) and the token

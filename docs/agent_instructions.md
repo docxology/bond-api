@@ -83,9 +83,9 @@ scripted in-test providers) with real data and real computation.
 
 ## Rule 6: Manuscript Variables Are Injected, Never Hand-Authored
 
-Every token in `manuscript/*.md` resolves through
+Every token in `docs/manuscript/*.md` resolves through
 `src/bond_api/manuscript_variables.py::generate_variables()`, which reads
-`manuscript/config.yaml` and the live protocol surface. Hardcoding a metric in
+`docs/manuscript/config.yaml` and the live protocol surface. Hardcoding a metric in
 prose is the primary cause of manuscripts drifting from code.
 
 The token pipeline:
@@ -111,10 +111,10 @@ The current token map and where each value comes from:
 | `BOND_NUM_PROVIDER_METHODS`, `BOND_PROVIDER_METHODS` | `MISSION_FLOW` |
 | `BOND_NUM_CAPABILITIES`, `BOND_CAPABILITIES` | `capabilities.CAPABILITY_NAMES` |
 | `BOND_SERIALIZATION_TAG` | `serialization.SERIALIZATION_TAG` |
-| `BOND_VERSION`, `BOND_TITLE`, `BOND_SUBTITLE` | `manuscript/config.yaml` → `paper:` |
-| `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` | `manuscript/config.yaml` → `protocol:` |
+| `BOND_VERSION`, `BOND_TITLE`, `BOND_SUBTITLE` | `docs/manuscript/config.yaml` → `paper:` |
+| `BOND_REFERENCE_FILM`, `BOND_NUM_FILMS` | `docs/manuscript/config.yaml` → `protocol:` |
 | `BOND_COVERAGE_FLOOR` | `pyproject.toml` → `[tool.coverage.report] fail_under` |
-| `BOND_MANUSCRIPT_DATE` | `manuscript/config.yaml` → `paper.date` (committed; never a clock read) |
+| `BOND_MANUSCRIPT_DATE` | `docs/manuscript/config.yaml` → `paper.date` (committed; never a clock read) |
 | `PYTHON_VERSION` | the running interpreter |
 
 Prefer a token over a literal whenever the value could change without the

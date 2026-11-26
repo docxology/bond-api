@@ -46,7 +46,7 @@ def test_generate_variables_defaults() -> None:
 def test_all_manuscript_tokens_are_generated() -> None:
     variables = generate_variables()
     used: set[str] = set()
-    for section in sorted(PACKAGE_ROOT.glob("manuscript/[0-9][0-9]_*.md")):
+    for section in sorted(PACKAGE_ROOT.glob("docs/manuscript/[0-9][0-9]_*.md")):
         used.update(_TOKEN_RE.findall(section.read_text(encoding="utf-8")))
     assert used, "manuscript sections use no tokens — the gate would be vacuous"
     missing = used - set(variables)

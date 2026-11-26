@@ -8,7 +8,7 @@ and asserts each name resolves via ``getattr``, and asserts the list is
 non-empty so the loop cannot pass by iterating nothing (V2).
 
 The package version is stated in several places (``pyproject.toml``,
-``bond_api.__version__``, ``manuscript/config.yaml`` → ``paper.version``, and
+``bond_api.__version__``, ``docs/manuscript/config.yaml`` → ``paper.version``, and
 the reference film's provenance stamp). A bump edited in only one place leaves
 the suite green while ships stale metadata. ``test_version_copies_agree`` binds
 all four copies to one another so a single drifted copy fails (C3).
@@ -64,7 +64,7 @@ def test_version_copies_agree_across_the_package() -> None:
 
     assert from_init == from_pyproject, f"bond_api.__version__ {from_init!r} != pyproject {from_pyproject!r}"
     assert from_config == from_pyproject, (
-        f"manuscript/config.yaml paper.version {from_config!r} != pyproject {from_pyproject!r}"
+        f"docs/manuscript/config.yaml paper.version {from_config!r} != pyproject {from_pyproject!r}"
     )
     assert from_film == from_pyproject, f"films/sable _PACKAGE_VERSION {from_film!r} != pyproject {from_pyproject!r}"
 

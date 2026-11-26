@@ -13,6 +13,8 @@ stage has one input, one output, and no hidden state:
 | `execute` | `MissionPlan` | `MissionOutcome` |
 | `debrief` | `MissionOutcome` | `Debrief` |
 
+: Inputs and outputs of the provider lifecycle. {#tbl:mission_lifecycle}
+
 The orchestrator helper `run_mission(provider, request)` composes the
 {{BOND_NUM_PROVIDER_METHODS}} stages in exactly this order and returns the
 final `Debrief`. Because the stages are pure functions of their inputs, coordinators can re-run, cache, or

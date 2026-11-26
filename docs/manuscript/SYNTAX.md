@@ -1,7 +1,7 @@
 # Manuscript Syntax (bond-api)
 
 Project-specific overlay on the canonical
-[`docs/guides/manuscript-semantics.md`](../../../docs/guides/manuscript-semantics.md) —
+[Template manuscript semantics](https://github.com/docxology/template/blob/87704feae0a4490ef7dad9c931d268e8c30273c2/docs/guides/manuscript-semantics.md) —
 read that file first; this file documents the **bond-api**-specific figure
 registry, labels, and token table.
 

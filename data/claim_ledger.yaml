@@ -45,7 +45,7 @@ claims:
   - claim_id: package-version
     kind: string
     value: "0.1.0"
-    source: pyproject.toml [project] version (single source; the copies in bond_api.__version__, manuscript/config.yaml paper.version, and films/sable _PACKAGE_VERSION are gated together in tests/test_exports.py)
+    source: pyproject.toml [project] version (single source; the copies in bond_api.__version__, docs/manuscript/config.yaml paper.version, and films/sable _PACKAGE_VERSION are gated together in tests/test_exports.py)
     source_tier: project_source
     freshness: active
     artifact_path: pyproject.toml

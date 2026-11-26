@@ -28,7 +28,7 @@ from bond_api.manuscript_variables import generate_variables, resolve_manuscript
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-draft", action="store_true", help="write even if tokens remain unresolved")
-    parser.add_argument("--config", default=None, help="path to manuscript/config.yaml")
+    parser.add_argument("--config", default=None, help="path to docs/manuscript/config.yaml")
     parser.add_argument("--manuscript-dir", default=None, help="manuscript source directory")
     parser.add_argument("--output-dir", default=None, help="output directory (default: <root>/output)")
     args = parser.parse_args()

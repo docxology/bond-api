@@ -66,5 +66,5 @@ uv run python scripts/z_generate_manuscript_variables.py
 
 - Project contract: [`AGENTS.md`](../../../AGENTS.md)
 - README: [`README.md`](../../../README.md)
-- TODO: [`TODO.md`](../../../TODO.md)
-- Agent rules: [`docs/agent_instructions.md`](../../../docs/agent_instructions.md)
+- TODO: [`TODO.md`](https://github.com/docxology/template/blob/87704feae0a4490ef7dad9c931d268e8c30273c2/docs/TODO.md)
+- Agent rules: [`docs/agent_instructions.md`](https://github.com/docxology/template/blob/87704feae0a4490ef7dad9c931d268e8c30273c2/docs/agent_instructions.md)

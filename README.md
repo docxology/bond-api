@@ -5,6 +5,8 @@ single contract every film package implements and every coordinator consumes.
 This package freezes that contract so the 27 film agents code against a
 stable, tested surface instead of a moving one.
 
+Start with the [documentation index](docs/README.md) for usage, integration, and manuscript rendering.
+
 ## Protocol flow
 
 ```mermaid
@@ -56,32 +58,14 @@ not decoration — it names the job.
 
 ## Quickstart
 
-```bash
-# From this directory
-uv sync --extra dev
-
-# Run the suite (the enforced gate: line + branch coverage on src/)
-uv run --extra dev pytest tests/ --cov=src --cov-fail-under=90
-
-# Verify the environment
+```sh
+uv sync --locked --extra dev
 uv run python scripts/00_preflight.py
-
-# Run the reference film end-to-end (discovery → brief → recon → plan → execute → debrief)
 uv run python scripts/demo_mission.py
-
-# Hydrate manuscript tokens (strict: an unresolved token exits non-zero)
-uv run python scripts/z_generate_manuscript_variables.py
-
-# Code quality (all three must pass)
-uv run --extra dev ruff check src/ scripts/ films/ tests/
-uv run --extra dev ruff format --check src/ scripts/ films/ tests/
-uv run --extra dev mypy src/ scripts/ films/
 ```
 
-Measured coverage and test counts are not quoted here on purpose: they are
-whatever the command above prints. The number that is *enforced* is the
-`fail_under` floor declared in `pyproject.toml`, and the manuscript reads that
-floor from the same place rather than restating it.
+The [runbook](docs/runbook.md) covers the protocol tests, lint and type gates,
+strict manuscript hydration, and pinned PDF, HTML, and slide rendering.
 
 ## The MissionProvider surface
 
@@ -150,8 +134,7 @@ src/bond_api/          The package (protocol · serialization · discovery · re
 films/sable/           Reference film implementing the contract
 scripts/               Thin orchestrators
 tests/                 Zero-mock test suite
-manuscript/            Protocol manuscript + config.yaml (token-hydrated)
-docs/                  Agent-facing documentation hub
+docs/                  Usage, protocol documentation, and manuscript source
 data/                  claim_ledger.yaml and dataset notes
 output/                Disposable generated artifacts — regenerate, never hand-edit
 ```
@@ -163,4 +146,4 @@ serialization, discovery, registries, capability helpers, reference film,
 manuscript, and a zero-mock suite that clears the enforced coverage floor
 (run the gate above to see the current figure). Downstream packages — bond-coordinator,
 bond-orchestrator, bond-cli, and the film packages — code against this
-contract. Remaining integration points are tracked in [`TODO.md`](TODO.md).
+contract. Remaining integration points are tracked in [`TODO.md`](docs/TODO.md).

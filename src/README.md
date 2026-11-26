@@ -10,6 +10,6 @@ film suite.
 | `registry.py` | `GadgetRegistry` + `MissionRegistry` |
 | `serialization.py` | Deterministic JSON round-trips |
 | `capabilities.py` | Brief/plan validation, provenance hashing, debrief normalization |
-| `manuscript_variables.py` | Token hydration from `manuscript/config.yaml` |
+| `manuscript_variables.py` | Token hydration from `docs/manuscript/config.yaml` |
 
 See [`AGENTS.md`](AGENTS.md) for the full API reference and rules.

@@ -18,7 +18,7 @@ table.
 The reproducibility section's byte-identity claim is now true and bound:
 `generate_variables()` no longer reads a wall clock (the old
 `GENERATION_TIMESTAMP` token is gone, replaced by `BOND_MANUSCRIPT_DATE` from
-`manuscript/config.yaml` → `paper.date`), and
+`docs/manuscript/config.yaml` → `paper.date`), and
 `tests/test_regeneration_determinism.py` runs the real generator twice across
 a whole-second boundary and compares every artifact byte for byte. Before the
 fix two consecutive regenerations hashed `2b1e126c…` and `365114ac…`; after it
@@ -42,8 +42,8 @@ asserted only over the single environment the suite has actually run in:
   (`tests/test_golden_determinism.py:217`) binds the cross-*process* half with
   a fresh interpreter under `PYTHONHASHSEED=random`. Neither can establish
   behavior on a platform the suite has never executed on. The prose scope was
-  already narrowed to match — `manuscript/03_results.md`,
-  `manuscript/06_reproducibility.md`, `docs/architecture.md`,
+  already narrowed to match — `docs/manuscript/03_results.md`,
+  `docs/manuscript/06_reproducibility.md`, `docs/architecture.md`,
   `docs/testing_philosophy.md`, and the `fingerprint()` docstring at
   `src/bond_api/capabilities.py:157-162`. Do not re-widen it without the
   matrix.
@@ -85,7 +85,7 @@ Accepted and deliberate. Recorded here so nobody re-litigates them.
   the strict entry point. Honest scope: a caller who passes a typo'd slug to
   `discover()` gets silence, not an error. Both sides of the contrast are now
   pinned by `tests/test_discovery.py` and documented at
-  `src/bond_api/discovery.py:161-166` and `manuscript/02_methodology.md:68-74`,
+  `src/bond_api/discovery.py:161-166` and `docs/manuscript/02_methodology.md:68-74`,
   so it cannot drift back into being undocumented. Reopen only on a deliberate
   decision that eager validation is the better design — that is an API change,
   not a bug fix.
@@ -100,7 +100,7 @@ Accepted and deliberate. Recorded here so nobody re-litigates them.
   operation.
 - **Protocol objects with mutable payloads are unhashable.** Value equality,
   not dict-key semantics. Documented in `src/bond_api/protocol.py`,
-  `manuscript/02_methodology.md`, `docs/architecture.md:59-61`.
+  `docs/manuscript/02_methodology.md`, `docs/architecture.md:59-61`.
 - **`run_mission` executes `recon` but does not thread its report into
   `plan`.** The frozen signature is `plan(brief)`; callers needing the report
   drive the five stages directly, as `scripts/demo_mission.py` does.
@@ -201,7 +201,7 @@ over `null`/`false`/`0`/`[]`/`{}`/`"gadget"`) and
 `package-version` row with a verifier reading `pyproject.toml` `[project]
 version`, and new `tests/test_exports.py::test_version_copies_agree_across_the_package`
 asserts the four copies (`pyproject.toml`, `bond_api.__version__`,
-`manuscript/config.yaml` → `paper.version`, `films/sable/_PACKAGE_VERSION`)
+`docs/manuscript/config.yaml` → `paper.version`, `films/sable/_PACKAGE_VERSION`)
 all agree with `pyproject.toml` as the source of truth. A bump in one copy
 now fails the suite (`tests/test_claim_ledger.py` + `tests/test_exports.py`).
 
@@ -228,12 +228,12 @@ Also fixed: `ruff format` gate (baseline failing on
 
 ### Manuscript improvements
 
-Added `manuscript/08_limitations_and_uncertainty.md` — an honest limitations
+Added `docs/manuscript/08_limitations_and_uncertainty.md` — an honest limitations
 section covering the deliberately permissive discovery/`sys.modules`/
 `sys.path`/hashability boundaries, the now-enforced wire-format strictness
 (non-finite floats, reserved-key tags), the interpreter-bounded determinism
 claims, provenance uncertainty, and versioning drift control. Added a
-live-bound capability-helper table to `manuscript/03_results.md` (helper names
+live-bound capability-helper table to `docs/manuscript/03_results.md` (helper names
 are public API, count from `{{BOND_NUM_CAPABILITIES}}`), and updated the
 reader's guide (`01_introduction.md`), conclusion (`04_conclusion.md`), and
 `manuscript/AGENTS.md` inventory. All tokens resolve strictly; `output/`

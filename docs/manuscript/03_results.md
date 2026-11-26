@@ -27,7 +27,7 @@ in prose.
   shadows a protocol type is rejected instead of being flattened onto that
   type's fields. The wire tag (`{{BOND_SERIALIZATION_TAG}}`) is published as
   `bond_api.serialization.SERIALIZATION_TAG`, and a test pins the value
-  declared in `manuscript/config.yaml` to the live constant, so the format
+  declared in `docs/manuscript/config.yaml` to the live constant, so the format
   cannot drift from its documentation.
 - **Registry semantics**: gadget registration/merging/overwrite/drop and
   mission-provider register/lookup/drop are exercised with real providers.
