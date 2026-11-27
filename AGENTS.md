@@ -4,6 +4,10 @@
 (Layer 1, codename *THE PROTOCOL*). The package is published at
 `github.com/docxology/bond-api`.
 
+Read the [documentation index](docs/README.md), [source guide](src/README.md),
+[script guide](scripts/README.md), and [test guide](tests/README.md) for the
+scope you are changing.
+
 ## Scope and hard rules
 
 1. **Work only inside this directory.** Never modify sibling bond packages,
@@ -84,7 +88,7 @@ Before modifying this project, read in order:
 
 ```bash
 # Install (dev extras: pytest, pytest-cov, ruff, mypy, types-PyYAML)
-uv sync --extra dev
+uv sync --locked --extra dev
 
 # Run one test
 uv run --extra dev pytest tests/test_capabilities.py::test_fingerprint_is_deterministic -v

@@ -7,6 +7,21 @@ stable, tested surface instead of a moving one.
 
 Start with the [documentation index](docs/README.md) for usage, integration, and manuscript rendering.
 
+## Install and verify the contract
+
+The distribution is `bond-api` and its Python import is `bond_api`. From
+the repository root with [uv](https://docs.astral.sh/uv/) installed:
+
+```sh
+uv sync --locked --extra dev
+uv run --no-sync pytest --no-cov tests/test_capabilities.py
+```
+
+This check exercises the frozen data and validation surfaces. See the
+[runbook](docs/runbook.md) for developer tools and manuscript prerequisites.
+The [contributor guide](AGENTS.md) explains which changes would break the
+shared contract.
+
 ## Protocol flow
 
 ```mermaid
@@ -55,17 +70,6 @@ not decoration — it names the job.
 | `scripts/demo_mission.py` | Thin orchestrator — discovers a film and runs brief → recon → plan → execute → debrief. |
 | `scripts/z_generate_manuscript_variables.py` | Thin orchestrator — hydrates manuscript tokens (strict by default). |
 | `tests/` | Zero-mock suite over `src/` and the real reference film. |
-
-## Quickstart
-
-```sh
-uv sync --locked --extra dev
-uv run python scripts/00_preflight.py
-uv run python scripts/demo_mission.py
-```
-
-The [runbook](docs/runbook.md) covers the protocol tests, lint and type gates,
-strict manuscript hydration, and pinned PDF, HTML, and slide rendering.
 
 ## The MissionProvider surface
 
